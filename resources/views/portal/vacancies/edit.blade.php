@@ -50,8 +50,14 @@
 
             <div class="mb-4">
                 <x-label class="mb-2">Número de vacantes</x-label>
-                <x-input name="number_of_vacancies" type="number" class="w-full"
+                <x-input id="number_of_vacancies" name="number_of_vacancies" type="number" class="w-full"
                     placeholder="Ingrese la cantidad de vacantes" value="{{ old('number_of_vacancies', $vacancy->number_of_vacancies) }}" />
+            </div>
+
+            <div class="mb-4">
+                <x-label class="mb-2">Número de vacantes</x-label>
+                <x-input id="gross_salary" name="gross_salary" type="number" class="w-full"
+                placeholder="Ingrese el sueldo bruto" value="{{ old('gross_salary', $vacancy->gross_salary) }}" />
             </div>
 
             <label class="inline-flex items-center cursor-pointer">
@@ -69,4 +75,32 @@
             </div>
         </form>
     </div>
+
+    @push('js')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Function to restrict input
+                function restrictInput(event) {
+                    if (event.key === 'e' || event.key === ',' || event.key === '.' || event.key === '-') {
+                        event.preventDefault();
+                    }
+                }
+
+                function restrictPaste(event) {
+                    this.value = this.value.replace(/[e,.\-]/gi, '');
+                }
+
+                // Get the input elements
+                var numberOfVacanciesInput = document.getElementById('number_of_vacancies');
+                var grossSalaryInput = document.getElementById('gross_salary');
+
+                // Attach the event listeners
+                numberOfVacanciesInput.addEventListener('keydown', restrictInput);
+                numberOfVacanciesInput.addEventListener('input', restrictPaste);
+
+                grossSalaryInput.addEventListener('keydown', restrictInput);
+                grossSalaryInput.addEventListener('input', restrictPaste);
+            });
+        </script>
+    @endpush
 </x-portal-layout>

@@ -71,6 +71,13 @@
             'can' => ['Visualizar postulación'],
         ],
         [
+            'name' => 'Historial de suscripciones',
+            'url' => route('portal.subscriptions.index'),
+            'active' => request()->routeIs('portal.subscriptions.*'),
+            'icon' => 'fa-solid fa-layer-group',
+            'can' => ['Visualizar suscripciones'],
+        ],
+        [
             'name' => 'Volver a fundación sharat',
             'url' => route('home'),
             'active' => false,

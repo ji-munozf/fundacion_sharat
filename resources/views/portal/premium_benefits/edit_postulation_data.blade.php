@@ -14,7 +14,8 @@
     ],
 ]">
     <div class="bg-white shadow rounded-lg p-6 dark:bg-gray-800">
-        <form action="{{ route('portal.premium_benefits.updatePostulationData', $postulationUserData) }}" method="POST" enctype="multipart/form-data"
+        <form action="{{ route('portal.premium_benefits.updatePostulationData', $postulationUserData) }}" method="POST"
+            enctype="multipart/form-data"
             class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
             @csrf
             @method('PUT')
@@ -45,10 +46,10 @@
 
             <div class="mb-4">
                 <x-label class="mb-2">Número de contacto</x-label>
-                <x-input name="contact_number" type="text" class="w-full bg-gray-50" placeholder="+569XXXXXXXX"
+                <x-input name="contact_number" type="text" class="w-full bg-gray-50 mb-1" placeholder="+569XXXXXXXX"
                     value="{{ old('contact_number', $postulationUserData->contact_number) }}"
                     oninput="this.value = this.value.replace(/[^0-9+]/g, '');" />
-                <span class="text-xs text-gray-600 dark:text-gray-400">
+                <span class="text-sm text-gray-600 dark:text-gray-400">
                     Recuerde que debe cumplir con el formato indicado.
                 </span>
             </div>
@@ -59,17 +60,17 @@
                     class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                     id="file_input" name="curriculum_vitae" type="file" accept=".pdf,.doc,.docx">
                 @if ($postulationUserData->curriculum_vitae)
-                    <p class="text-xs text-gray-600 dark:text-gray-400 mt-2">Archivo actual:
-                        {{ $postulationUserData->curriculum_vitae }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Archivo actual:
+                        {{ $postulationUserData->file_name }}</p>
                 @endif
             </div>
 
             <div class="mb-4">
                 <x-label class="mb-2">Fortalezas</x-label>
-                <x-input id="fortalezas" name="fortalezas" type="text" class="w-full bg-gray-50"
+                <x-input id="fortalezas" name="fortalezas" type="text" class="w-full bg-gray-50 mb-1"
                     value="{{ old('fortalezas', $postulationUserData->strengths) }}"
                     placeholder="fortaleza 1, fortaleza 2, fortaleza 3" />
-                <span class="text-xs text-gray-600 dark:text-gray-400">Recuerde separar con comas.</span>
+                <span class="text-sm text-gray-600 dark:text-gray-400">Recuerde separar con comas.</span>
             </div>
 
             <div class="mb-4">

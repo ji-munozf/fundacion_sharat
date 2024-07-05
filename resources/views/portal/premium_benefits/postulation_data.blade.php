@@ -43,8 +43,8 @@
 
             <div class="mb-4">
                 <x-label class="mb-2">Currículum Vitae</x-label>
-                <a href="{{ Storage::url($postulationData->curriculum_vitae) }}" target="_blank"
-                    class="text-black dark:text-white underline">Ver documento</a>
+                <x-input name="curriculum_vitae" type="text" class="w-full bg-gray-50 cursor-default"
+                    value="{{ basename($postulationData->curriculum_vitae) }}" readonly />
             </div>
 
             <div class="mb-4">
@@ -68,18 +68,6 @@
                         Editar datos
                     </button>
                 </a>
-                <form id="delete-postulation-form"
-                    action="{{ route('portal.premium_benefits.destroyPostulationData') }}" class="inline-block"
-                    method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button type="button"
-                        class="px-3 py-2 mr-1 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
-                        onclick="confirmDelete()">
-                        <i class="fa-solid fa-trash-can mr-1"></i>
-                        Eliminar datos
-                    </button>
-                </form>
             </div>
         @else
             <form action="{{ route('portal.premium_benefits.savePostulationData') }}" method="POST"

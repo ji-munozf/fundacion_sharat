@@ -466,6 +466,17 @@ class UserController extends Controller implements \Illuminate\Routing\Controlle
     public function destroy(User $user)
     {
         try {
+            // Obtener todas las postulations asociadas
+            $postulations = $user->postulations;
+
+            // Eliminar los archivos de currículums asociados a las postulaciones
+            foreach ($postulations as $postulation) {
+                // Eliminar el archivo del sistema de archivos
+                if ($postulation->curriculum_vitae) {
+                    Storage::disk('public')->delete($postulation->curriculum_vitae);
+                }
+            }
+
             // Eliminar todas las postulations asociadas
             $user->postulations()->delete();
 

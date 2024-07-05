@@ -15,8 +15,8 @@ class CreatePostulationStatusTable extends Migration
     {
         Schema::create('postulation_status', function (Blueprint $table) {
             $table->id();
-            $table->boolean('status');
-            $table->text('reasons');
+            $table->boolean('status')->nullable();
+            $table->text('reasons')->nullable();
             $table->foreignId('postulation_id')->constrained('postulations')->onDelete('cascade'); // Llave foránea hacia la tabla "postulations"
             $table->timestamps();
         });

@@ -36,6 +36,10 @@ class DashboardController extends Controller
             $planEndDateFormatted
         );
 
+        // Verificar el plan_id del usuario
+        $planId = $user->plan_id;
+        $showDetailedPlanInfo = $planId == 2;
+
         $institution = $user->institution; // Obtener la institución del usuario logueado
 
         $userInstitutionName = $institution ? $institution->name : 'No asignada';
@@ -90,7 +94,9 @@ class DashboardController extends Controller
             'postulationsCount',
             'userPlanName',
             'planDuration',
-            'planEndDateFormatted'
+            'planEndDateFormatted',
+            'showDetailedPlanInfo'
         ));
     }
 }
+

@@ -54,10 +54,10 @@
 
             <div class="mb-4">
                 <x-label class="mb-2">Número de contacto</x-label>
-                <x-input name="contact_number" type="text" class="w-full bg-gray-50" placeholder="+569XXXXXXXX"
+                <x-input name="contact_number" type="text" class="w-full bg-gray-50 mb-1" placeholder="+569XXXXXXXX"
                     value="{{ old('contact_number', $postulation->contact_number) }}"
                     oninput="this.value = this.value.replace(/[^0-9+]/g, '');" />
-                <span class="text-xs text-gray-600 dark:text-gray-400">
+                <span class="text-sm text-gray-600 dark:text-gray-400">
                     Recuerde que debe cumplir con el formato indicado.
                 </span>
             </div>
@@ -68,17 +68,17 @@
                     class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                     id="file_input" name="curriculum_vitae" type="file" accept=".pdf,.doc,.docx">
                 @if ($postulation->curriculum_vitae)
-                    <p class="text-xs text-gray-600 dark:text-gray-400 mt-2">Archivo actual:
-                        {{ $postulation->curriculum_vitae }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Archivo actual:
+                        {{ $postulation->file_name }}</p>
                 @endif
             </div>
 
             <div class="mb-4">
                 <x-label class="mb-2">Fortalezas</x-label>
-                <x-input id="fortalezas" name="fortalezas" type="text" class="w-full bg-gray-50"
+                <x-input id="fortalezas" name="fortalezas" type="text" class="w-full bg-gray-50 mb-1"
                     value="{{ old('fortalezas', $postulation->strengths) }}"
                     placeholder="fortaleza 1, fortaleza 2, fortaleza 3" />
-                <span class="text-xs text-gray-600 dark:text-gray-400">Recuerde separar con comas.</span>
+                <span class="text-sm text-gray-600 dark:text-gray-400">Recuerde separar con comas.</span>
             </div>
 
             <div class="mb-4">

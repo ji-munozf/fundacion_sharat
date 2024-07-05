@@ -26,9 +26,6 @@
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
                         <th scope="col" class="px-6 py-3">
-                            ID
-                        </th>
-                        <th scope="col" class="px-6 py-3">
                             Nombre
                         </th>
                         <th scope="col" class="px-6 py-3">
@@ -42,6 +39,9 @@
                         </th>
                         <th scope="col" class="px-6 py-3">
                             Número de vacantes
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Sueldo bruto
                         </th>
                         <th scope="col" class="px-6 py-3">
                             Activo
@@ -60,10 +60,6 @@
                 <tbody>
                     @foreach ($vacancies as $vacancy)
                         <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                            <th scope="row"
-                                class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                {{ $vacancy->id }}
-                            </th>
                             <td class="px-6 py-4">
                                 {{ $vacancy->name }}
                             </td>
@@ -79,6 +75,9 @@
                             <td class="px-6 py-4">
                                 {{ $vacancy->number_of_vacancies }}
                             </td>
+                            <td class="px-6 py-4">
+                                ${{ number_format($vacancy->gross_salary, 0, ',', '.') }}
+                            </td>                            
                             <td class="px-6 py-4 whitespace-nowrap">
                                 {{ $vacancy->active ? 'Sí' : 'No' }}
                             </td>

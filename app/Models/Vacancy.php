@@ -15,10 +15,16 @@ class Vacancy extends Model
         'description',
         'contracting_manager',
         'number_of_vacancies',
+        'gross_salary',
         'active',
         'user_id', // Llave foránea hacia la tabla "users"
         'institution_id', // Llave foránea hacia la tabla "institutions"
     ];
+
+    public function getFormattedGrossSalaryAttribute()
+    {
+        return '$' . number_format($this->gross_salary, 0, ',', '.');
+    }
 
     // Relación con la tabla "users"
     public function user()

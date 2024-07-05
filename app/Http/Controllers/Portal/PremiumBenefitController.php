@@ -59,15 +59,15 @@ class PremiumBenefitController extends Controller implements \Illuminate\Routing
             $extension = $file->getClientOriginalExtension();
 
             // Verificar si el archivo ya existe y añadir un número si es necesario
-            $filePath = "premium_user_curriculum_vitae/{$originalName}";
+            $filePath = "premium_user_curriculums/{$originalName}";
             $counter = 1;
             while (Storage::disk('public')->exists($filePath)) {
-                $filePath = "premium_user_curriculum_vitae/{$fileName}_{$counter}.{$extension}";
+                $filePath = "premium_user_curriculums/{$fileName}_{$counter}.{$extension}";
                 $counter++;
             }
 
             // Guardar el archivo en la ubicación final
-            $file->storeAs('premium_user_curriculum_vitae', basename($filePath), 'public');
+            $file->storeAs('premium_user_curriculums', basename($filePath), 'public');
         }
 
         // Guardar los datos en la base de datos
@@ -94,6 +94,9 @@ class PremiumBenefitController extends Controller implements \Illuminate\Routing
 
     public function editPostulationData(PostulationUserData $postulationUserData)
     {
+        // Extraer solo el nombre del archivo de la ruta
+        $postulationUserData->file_name = basename($postulationUserData->curriculum_vitae);
+
         return view('portal.premium_benefits.edit_postulation_data', compact('postulationUserData'));
     }
 
@@ -126,15 +129,15 @@ class PremiumBenefitController extends Controller implements \Illuminate\Routing
             $extension = $file->getClientOriginalExtension();
 
             // Verificar si el archivo ya existe y añadir un número si es necesario
-            $filePath = "curriculums/{$originalName}";
+            $filePath = "premium_user_curriculums/{$originalName}";
             $counter = 1;
             while (Storage::disk('public')->exists($filePath)) {
-                $filePath = "curriculums/{$fileName}_{$counter}.{$extension}";
+                $filePath = "premium_user_curriculums/{$fileName}_{$counter}.{$extension}";
                 $counter++;
             }
 
             // Guardar el archivo en la ubicación final
-            $file->storeAs('curriculums', basename($filePath), 'public');
+            $file->storeAs('premium_user_curriculums', basename($filePath), 'public');
 
             // Borrar el archivo anterior si existe uno nuevo
             if ($postulationUserData->curriculum_vitae) {
@@ -145,7 +148,7 @@ class PremiumBenefitController extends Controller implements \Illuminate\Routing
             $postulationUserData->curriculum_vitae = $filePath;
         }
 
-        // Actualizar los datos en la base de datos
+        // Actualizar los datos en la tabla postulation_user_data
         $postulationUserData->update([
             'names' => $request->input('names'),
             'last_names' => $request->input('last_names'),
@@ -154,6 +157,22 @@ class PremiumBenefitController extends Controller implements \Illuminate\Routing
             'strengths' => $request->input('fortalezas'),
             'reasons' => $request->input('reasons'),
         ]);
+
+        // Actualizar los datos en la tabla postulations si el usuario tiene postulaciones
+        $userId = $postulationUserData->user_id;
+        $postulations = \App\Models\Postulation::where('user_id', $userId)->get();
+
+        foreach ($postulations as $postulation) {
+            $postulation->update([
+                'names' => $request->input('names'),
+                'last_names' => $request->input('last_names'),
+                'email' => $request->input('email'),
+                'contact_number' => $request->input('contact_number'),
+                'curriculum_vitae' => $postulationUserData->curriculum_vitae, // Asegúrate de que sea la misma ruta del archivo actualizado
+                'strengths' => $request->input('fortalezas'),
+                'reasons' => $request->input('reasons'),
+            ]);
+        }
 
         // Mensaje de éxito
         session()->flash('swal', [
@@ -165,29 +184,48 @@ class PremiumBenefitController extends Controller implements \Illuminate\Routing
         return redirect()->route('portal.premium_benefits.postulation_data');
     }
 
-    public function destroyPostulationData()
-    {
-        $user = auth()->user();
-        $postulationData = PostulationUserData::where('user_id', $user->id)->firstOrFail();
+    // public function destroyPostulationData()
+    // {
+    //     $user = auth()->user();
+    //     $postulationData = PostulationUserData::where('user_id', $user->id)->firstOrFail();
 
-        // Verificar si la aplicación tiene un archivo de currículum vitae
-        if ($postulationData->curriculum_vitae) {
-            // Eliminar el archivo del sistema de archivos
-            Storage::disk('public')->delete($postulationData->curriculum_vitae);
-        }
+    //     // Verificar si el usuario tiene alguna postulación pendiente
+    //     $pendingPostulation = Postulation::where('user_id', $user->id)
+    //         ->whereHas('status', function ($query) {
+    //             $query->whereNull('status');
+    //         })
+    //         ->exists();
 
-        // Eliminar la aplicación de la base de datos
-        $postulationData->delete();
+    //     if ($pendingPostulation) {
+    //         // Crear el mensaje de error
+    //         session()->flash('swal', [
+    //             'icon' => 'error',
+    //             'title' => 'Operación no permitida',
+    //             'text' => 'No puede eliminar sus datos de postulación mientras tenga postulaciones en estado pendiente.',
+    //         ]);
 
-        // Crear el mensaje de éxito con el nombre de la vacante
-        session()->flash('swal', [
-            'icon' => 'success',
-            'title' => '¡Bien hecho!',
-            'text' => 'Los datos de postulación se eliminaron correctamente',
-        ]);
+    //         // Redirigir al usuario a la página principal
+    //         return redirect()->route('portal.premium_benefits.postulation_data');
+    //     }
 
-        // Redirigir al usuario a la página principal
-        return redirect()->route('portal.premium_benefits.postulation_data');
-    }
+    //     // Verificar si la aplicación tiene un archivo de currículum vitae
+    //     if ($postulationData->curriculum_vitae) {
+    //         // Eliminar el archivo del sistema de archivos
+    //         Storage::disk('public')->delete($postulationData->curriculum_vitae);
+    //     }
+
+    //     // Eliminar la aplicación de la base de datos
+    //     $postulationData->delete();
+
+    //     // Crear el mensaje de éxito con el nombre de la vacante
+    //     session()->flash('swal', [
+    //         'icon' => 'success',
+    //         'title' => '¡Bien hecho!',
+    //         'text' => 'Los datos de postulación se eliminaron correctamente',
+    //     ]);
+
+    //     // Redirigir al usuario a la página principal
+    //     return redirect()->route('portal.premium_benefits.postulation_data');
+    // }
 
 }

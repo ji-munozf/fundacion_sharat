@@ -69,6 +69,8 @@ class DatabaseSeeder extends Seeder
         Permission::create(['name' => 'Editar datos de postulación']);
         Permission::create(['name' => 'Eliminar datos de postulación']);
 
+        Permission::create(['name' => 'Visualizar suscripciones']);
+
         // Crear Roles
         $superAdminRole = Role::create(['name' => 'Super admin']);
         $adminRole = Role::create(['name' => 'Admin']);
@@ -83,7 +85,8 @@ class DatabaseSeeder extends Seeder
             'Visualizar roles', 'Crear roles', 'Actualizar roles', 'Eliminar roles', 'Añadir permisos',
             'Visualizar permisos', 'Crear permisos', 'Actualizar permisos', 'Eliminar permisos',
             'Visualizar instituciones', 'Crear instituciones', 'Actualizar instituciones',
-            'Visualizar vacantes', 'Crear vacantes', 'Actualizar vacantes', 'Eliminar vacantes'
+            'Visualizar vacantes', 'Crear vacantes', 'Actualizar vacantes', 'Eliminar vacantes',
+            'Visualizar suscripciones'
         ]);
 
         // Asignar permisos al rol de institución
@@ -188,6 +191,7 @@ class DatabaseSeeder extends Seeder
             'description' => 'Se busca profesor de historia y geografía',
             'contracting_manager' => 'Reclutador colegio X',
             'number_of_vacancies' => 2,
+            'gross_salary'=> 777777,
             'active' => 1,
             'user_id' => 3,
             'institution_id' => 2,
@@ -199,6 +203,7 @@ class DatabaseSeeder extends Seeder
             'description' => 'Se busca matemáticas y debe ser cristiano',
             'contracting_manager' => 'Reclutador colegio Y',
             'number_of_vacancies' => 1,
+            'gross_salary'=> 777777,
             'active' => 1,
             'user_id' => 4,
             'institution_id' => 2,
@@ -210,6 +215,7 @@ class DatabaseSeeder extends Seeder
             'description' => 'Se busca profesor de lenguaje',
             'contracting_manager' => 'Reclutador colegio A',
             'number_of_vacancies' => 2,
+            'gross_salary'=> 777777,
             'active' => 1,
             'user_id' => 5,
             'institution_id' => 3,
@@ -221,6 +227,7 @@ class DatabaseSeeder extends Seeder
             'description' => 'Se busca matemáticas',
             'contracting_manager' => 'Reclutador colegio B',
             'number_of_vacancies' => 1,
+            'gross_salary'=> 777777,
             'active' => 1,
             'user_id' => 6,
             'institution_id' => 3,

@@ -284,12 +284,19 @@
                         Suscripción
                     </h1>
                 </div>
-                <div class="text-center font-medium text-gray-500 dark:text-gray-300">
-                    Usted actualmente tiene el plan {{ strtolower($userPlanName) }} {{ strtolower($planDuration) }}.
+                <div
+                    class="text-center font-medium text-gray-500 dark:text-gray-300 {{ !$showDetailedPlanInfo ? 'mb-2' : '' }}">
+                    @if ($showDetailedPlanInfo)
+                        Usted actualmente tiene el plan {{ strtolower($userPlanName) }} {{ strtolower($planDuration) }}.
+                    @else
+                        Usted actualmente tiene el plan {{ strtolower($userPlanName) }}.
+                    @endif
                 </div>
-                <div class="mb-2 text-center font-medium text-gray-500 dark:text-gray-300">
-                    Su plan {{ strtolower($userPlanName) }} acaba el {{ $planEndDateFormatted }}.
-                </div>
+                @if ($showDetailedPlanInfo)
+                    <div class="mb-2 text-center font-medium text-gray-500 dark:text-gray-300">
+                        Su plan {{ strtolower($userPlanName) }} acaba el {{ $planEndDateFormatted }}.
+                    </div>
+                @endif
                 <div class="flex justify-center mb-4">
                     <a href="{{ route('portal.plans.index') }}">
                         <button type="button"

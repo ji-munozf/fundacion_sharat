@@ -46,8 +46,14 @@
 
             <div class="mb-4">
                 <x-label class="mb-2">Número de vacantes</x-label>
-                <x-input name="number_of_vacancies" type="number" class="w-full"
+                <x-input id="number_of_vacancies" name="number_of_vacancies" type="number" class="w-full"
                     placeholder="Ingrese la cantidad de vacantes" value="{{ old('number_of_vacancies') }}" />
+            </div>
+
+            <div class="mb-4">
+                <x-label class="mb-2">Sueldo bruto</x-label>
+                <x-input id="gross_salary" name="gross_salary" type="number" class="w-full"
+                    placeholder="Ingrese el sueldo bruto" value="{{ old('gross_salary') }}" />
             </div>
 
             @if (Auth::check() && Auth::user()->hasRole(['Super admin', 'Admin']))
@@ -57,7 +63,7 @@
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         <option value="">Seleccione una institución</option>
                         @foreach ($institutions as $institution)
-                            <option value="{{ $institution->id }}">
+                            <option value="{{ $institution->id }}" {{ old('institution_id') == $institution->id ? 'selected' : '' }}>
                                 {{ $institution->name }}
                             </option>
                         @endforeach
@@ -83,4 +89,32 @@
             </div>
         </form>
     </div>
+
+    @push('js')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Function to restrict input
+                function restrictInput(event) {
+                    if (event.key === 'e' || event.key === ',' || event.key === '.' || event.key === '-') {
+                        event.preventDefault();
+                    }
+                }
+
+                function restrictPaste(event) {
+                    this.value = this.value.replace(/[e,.\-]/gi, '');
+                }
+
+                // Get the input elements
+                var numberOfVacanciesInput = document.getElementById('number_of_vacancies');
+                var grossSalaryInput = document.getElementById('gross_salary');
+
+                // Attach the event listeners
+                numberOfVacanciesInput.addEventListener('keydown', restrictInput);
+                numberOfVacanciesInput.addEventListener('input', restrictPaste);
+
+                grossSalaryInput.addEventListener('keydown', restrictInput);
+                grossSalaryInput.addEventListener('input', restrictPaste);
+            });
+        </script>
+    @endpush
 </x-portal-layout>

@@ -7,6 +7,7 @@ use App\Http\Controllers\Portal\PlanController;
 use App\Http\Controllers\Portal\PostulationController;
 use App\Http\Controllers\Portal\PremiumBenefitController;
 use App\Http\Controllers\Portal\RoleController;
+use App\Http\Controllers\Portal\SubscriptionController;
 use App\Http\Controllers\Portal\UserController;
 use App\Http\Controllers\Portal\VacancyController;
 use Illuminate\Support\Facades\Route;
@@ -114,11 +115,16 @@ Route::middleware([
         ->names('portal.postulations')
         ->except(['create', 'store', 'show']);
     Route::get('/postulations/request-vacancy/{vacancy}', [PostulationController::class, 'requestVacancy'])
-        ->name('portal.postulations.request_vacancy');
+        ->name('portal.postulations.request_vacancy')
+        ->middleware('check.postulation.limit');
     Route::post('/postulations/request-vacancy/{vacancy}', [PostulationController::class, 'sendRequestVacancy'])
         ->name('portal.postulations.sendRequestVacancy');
     Route::get('/postulations/{id}/reasons', [PostulationController::class, 'showReasons'])
         ->name('portal.postulations.showReasons');
+    Route::get('/postulations/userData', [PostulationController::class, 'getUserData'])
+        ->name('portal.postulations.userData');
+    Route::post('/postulations/save-selected', [PostulationController::class, 'saveSelected'])
+        ->name('postulations.saveSelected');
 });
 
 Route::middleware([
@@ -135,7 +141,6 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
-    'can:Acceso al dashboard',
 ])->group(function () {
     Route::get('/postulation_data', [PremiumBenefitController::class, 'postulationData'])
         ->name('portal.premium_benefits.postulation_data');
@@ -147,4 +152,14 @@ Route::middleware([
         ->name('portal.premium_benefits.updatePostulationData');
     Route::delete('/postulation_data', [PremiumBenefitController::class, 'destroyPostulationData'])
         ->name('portal.premium_benefits.destroyPostulationData');
+});
+
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->group(function () {
+    Route::resource('/subscriptions', SubscriptionController::class)
+        ->names('portal.subscriptions')
+        ->except('show');
 });

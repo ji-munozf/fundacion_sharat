@@ -49,7 +49,7 @@
                                             class="flex-shrink-0 w-6 h-6 text-emerald-500" aria-hidden="true">
                                             <polyline points="20 6 9 17 4 12"></polyline>
                                         </svg>
-                                        <span class="ml-3">Ventaja del plan gratuito 1</span>
+                                        <span class="ml-3">Postulaciones limitadas (2 por mes).</span>
                                     </li>
                                     <li class="flex">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -58,7 +58,7 @@
                                             class="flex-shrink-0 w-6 h-6 text-emerald-500" aria-hidden="true">
                                             <polyline points="20 6 9 17 4 12"></polyline>
                                         </svg>
-                                        <span class="ml-3">Ventaja del plan gratuito 2</span>
+                                        <span class="ml-3">Ingresar sus datos de postulación en cada vacante.</span>
                                     </li>
                                 @elseif ($plan->name === 'Premium')
                                     <li class="flex">
@@ -68,7 +68,7 @@
                                             class="flex-shrink-0 w-6 h-6 text-emerald-500" aria-hidden="true">
                                             <polyline points="20 6 9 17 4 12"></polyline>
                                         </svg>
-                                        <span class="ml-3">Ventaja del plan premium 1</span>
+                                        <span class="ml-3">Postulaciones ilimitadas.</span>
                                     </li>
                                     <li class="flex">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -77,7 +77,7 @@
                                             class="flex-shrink-0 w-6 h-6 text-emerald-500" aria-hidden="true">
                                             <polyline points="20 6 9 17 4 12"></polyline>
                                         </svg>
-                                        <span class="ml-3">Ventaja del plan premium 2</span>
+                                        <span class="ml-3">Guardar sus datos de postulación.</span>
                                     </li>
                                     <li class="flex">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -86,7 +86,16 @@
                                             class="flex-shrink-0 w-6 h-6 text-emerald-500" aria-hidden="true">
                                             <polyline points="20 6 9 17 4 12"></polyline>
                                         </svg>
-                                        <span class="ml-3">Ventaja del plan premium 3</span>
+                                        <span class="ml-3">Autocompletado de sus datos al postular.</span>
+                                    </li>
+                                    <li class="flex">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round"
+                                            class="flex-shrink-0 w-6 h-6 text-emerald-500" aria-hidden="true">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        <span class="ml-3">Seleccionar y postular a varias vacantes.</span>
                                     </li>
                                 @endif
                             </ul>

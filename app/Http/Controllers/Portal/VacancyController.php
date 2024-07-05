@@ -65,7 +65,8 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
      */
     public function create()
     {
-        $institutions = Institution::all();
+        // Obtener todas las instituciones excepto la que tiene id 1
+        $institutions = Institution::where('id', '!=', 1)->get();
         return view('portal.vacancies.create', compact('institutions'));
     }
 
@@ -75,14 +76,21 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
     public function store(Request $request)
     {
         // Validar los datos de entrada
-        $validated = $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'job_title' => 'required|string|max:255',
             'description' => 'required|string',
             'contracting_manager' => 'required|string|max:255',
             'number_of_vacancies' => 'required|integer',
+            'gross_salary' => 'required|integer',
             'active' => 'required|boolean',
-        ]);
+        ];
+
+        if (Auth::user()->hasRole(['Super admin', 'Admin'])) {
+            $rules['institution_id'] = 'required|exists:institutions,id';
+        }
+
+        $validated = $request->validate($rules);
 
         // Asegúrate de que el campo 'active' se maneja correctamente
         if (!isset($validated['active'])) {
@@ -142,6 +150,7 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
             'description' => 'required|string',
             'contracting_manager' => 'required|string|max:255',
             'number_of_vacancies' => 'required|integer',
+            'gross_salary' => 'required|integer',
             'active' => 'nullable|boolean',
         ]);
 
@@ -233,10 +242,20 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
             'razones' => 'required|string',
         ]);
 
-        $postulationStatus = new PostulationStatus();
-        $postulationStatus->postulation_id = $postulation->id;
-        $postulationStatus->status = true;
-        $postulationStatus->reasons = $request->razones;
+        // Buscar si ya existe un status para esta postulación
+        $postulationStatus = PostulationStatus::where('postulation_id', $postulation->id)->first();
+
+        if ($postulationStatus) {
+            // Si existe, actualizar el registro
+            $postulationStatus->status = true;
+            $postulationStatus->reasons = $request->razones;
+        } else {
+            // Si no existe, crear un nuevo registro
+            $postulationStatus = new PostulationStatus();
+            $postulationStatus->postulation_id = $postulation->id;
+            $postulationStatus->status = true;
+            $postulationStatus->reasons = $request->razones;
+        }
         $postulationStatus->save();
 
         $vacancy = $postulation->vacancy;
@@ -262,10 +281,20 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
             'razones' => 'required|string',
         ]);
 
-        $postulationStatus = new PostulationStatus();
-        $postulationStatus->postulation_id = $postulation->id;
-        $postulationStatus->status = false;
-        $postulationStatus->reasons = $request->razones;
+        // Buscar si ya existe un status para esta postulación
+        $postulationStatus = PostulationStatus::where('postulation_id', $postulation->id)->first();
+
+        if ($postulationStatus) {
+            // Si existe, actualizar el registro
+            $postulationStatus->status = false;
+            $postulationStatus->reasons = $request->razones;
+        } else {
+            // Si no existe, crear un nuevo registro
+            $postulationStatus = new PostulationStatus();
+            $postulationStatus->postulation_id = $postulation->id;
+            $postulationStatus->status = false;
+            $postulationStatus->reasons = $request->razones;
+        }
         $postulationStatus->save();
 
         session()->flash('swal', [
@@ -318,16 +347,16 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
             // Verificar si la postulación estaba aceptada o rechazada
             $wasAccepted = $postulationStatus->status;
 
-            // Eliminar el estado de la postulación
-            $postulationStatus->delete();
+            // Actualizar el estado de la postulación a null
+            $postulationStatus->status = null;
+            $postulationStatus->reasons = null;
+            $postulationStatus->save();
 
-            // Si estaba aceptada, ajustar la vacante
+            // Si la postulación estaba aceptada, ajustar la vacante
             if ($wasAccepted) {
                 $vacancy = $postulation->vacancy;
                 $vacancy->number_of_vacancies += 1;
-                if ($vacancy->number_of_vacancies > 0) {
-                    $vacancy->active = true;
-                }
+                $vacancy->active = true;
                 $vacancy->save();
             }
 
