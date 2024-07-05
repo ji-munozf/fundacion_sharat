@@ -1,3 +1,5 @@
+@section('title', 'Sharat - login')
+
 <x-guest-layout>
     <x-authentication-card>
         <x-slot name="logo">

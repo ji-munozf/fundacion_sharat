@@ -19,7 +19,7 @@
                         Recruitment</span>
                 </a>
             </div>
-            @auth
+            {{-- @auth
                 <div class="flex items-center">
                     <div class="ms-3 relative">
                         <x-dropdown align="right" width="48">
@@ -64,7 +64,7 @@
                         </x-dropdown>
                     </div>
                 </div>
-            @endauth
+            @endauth --}}
         </div>
     </div>
 </nav>

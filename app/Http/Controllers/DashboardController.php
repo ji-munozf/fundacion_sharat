@@ -15,6 +15,13 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        $user = auth()->user(); // Obtener el usuario logueado
+        $institution = $user->institution; // Obtener la institución del usuario logueado
+
+        $userInstitutionName = $institution ? $institution->name : 'No asignada';
+        $userInstitutionUserCount = $institution ? $institution->users()->count() : 0;
+        $userInstitutionVacancyCount = $institution ? $institution->vacancies()->count() : 0; // Obtener el número de vacantes creadas por la institución
+
         $totalUsers = User::count();
         $roles = Role::all();
         $totalRoles = $roles->count();
@@ -38,7 +45,6 @@ class DashboardController extends Controller
         // Obtener la cantidad de vacantes por institución excluyendo la institución con ID 1
         $vacanciesByInstitution = [];
         foreach ($institutions as $institution) {
-            // Excluir la institución con ID 1
             if ($institution->id != 1) {
                 $vacanciesByInstitution[$institution->name] = $institution->vacancies()->count();
             }
@@ -52,7 +58,10 @@ class DashboardController extends Controller
             'totalRoles',
             'totalPermissions',
             'totalInstitutions',
-            'totalVacancies'
+            'totalVacancies',
+            'userInstitutionName', // Pasar el nombre de la institución del usuario a la vista
+            'userInstitutionUserCount', // Pasar la cantidad de usuarios en la institución a la vista
+            'userInstitutionVacancyCount' // Pasar la cantidad de vacantes creadas por la institución a la vista
         ));
     }
 
