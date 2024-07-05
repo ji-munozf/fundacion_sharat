@@ -3,10 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Auth\Events\Login;
-use Illuminate\Auth\Events\Logout;
-use App\Listeners\UpdateUserStatusOnLogin;
-use App\Listeners\UpdateUserStatusOnLogout;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -16,12 +12,7 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        Login::class => [
-            UpdateUserStatusOnLogin::class,
-        ],
-        Logout::class => [
-            UpdateUserStatusOnLogout::class,
-        ],
+        //
     ];
 
     /**

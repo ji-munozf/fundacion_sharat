@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Institution;
+use App\Models\Plan;
 use App\Models\User;
 use App\Models\Vacancy;
 use Illuminate\Database\Seeder;
@@ -20,10 +21,14 @@ class DatabaseSeeder extends Seeder
         Permission::create(['name' => 'Acceso al dashboard']);
 
         Permission::create(['name' => 'Visualizar usuarios']);
+        Permission::create(['name' => 'Visualizar usuarios admins']);
+        Permission::create(['name' => 'Visualizar usuarios instituciones']);
+        Permission::create(['name' => 'Visualizar usuarios postulantes']);
         Permission::create(['name' => 'Crear usuarios']);
         Permission::create(['name' => 'Actualizar usuarios']);
         Permission::create(['name' => 'Eliminar usuarios']);
         Permission::create(['name' => 'Cambiar contraseña']);
+        Permission::create(['name' => 'Hacer premium']);
 
         Permission::create(['name' => 'Visualizar roles']);
         Permission::create(['name' => 'Crear roles']);
@@ -58,7 +63,11 @@ class DatabaseSeeder extends Seeder
         Permission::create(['name' => 'Cancelar postulación']);
 
         Permission::create(['name' => 'Visualizar planes']);
-        Permission::create(['name' => 'Cancelar plan']);
+
+        Permission::create(['name' => 'Acceder a datos de postulación']);
+        Permission::create(['name' => 'Guardar datos de postulación']);
+        Permission::create(['name' => 'Editar datos de postulación']);
+        Permission::create(['name' => 'Eliminar datos de postulación']);
 
         // Crear Roles
         $superAdminRole = Role::create(['name' => 'Super admin']);
@@ -69,7 +78,8 @@ class DatabaseSeeder extends Seeder
         // Asignar permisos al rol de institución
         $adminRole->givePermissionTo([
             'Acceso al dashboard',
-            'Visualizar usuarios', 'Crear usuarios', 'Actualizar usuarios', 'Eliminar usuarios', 'Cambiar contraseña',
+            'Visualizar usuarios', 'Visualizar usuarios admins', 'Visualizar usuarios instituciones', 'Visualizar usuarios postulantes',
+            'Crear usuarios', 'Actualizar usuarios', 'Eliminar usuarios', 'Cambiar contraseña', 'Hacer premium',
             'Visualizar roles', 'Crear roles', 'Actualizar roles', 'Eliminar roles', 'Añadir permisos',
             'Visualizar permisos', 'Crear permisos', 'Actualizar permisos', 'Eliminar permisos',
             'Visualizar instituciones', 'Crear instituciones', 'Actualizar instituciones',
@@ -88,7 +98,7 @@ class DatabaseSeeder extends Seeder
         $postulanteRole->givePermissionTo([
             'Acceso al dashboard',
             'Visualizar postulación', 'Crear postulación', 'Editar postulación', 'Cancelar postulación',
-            'Visualizar planes', 'Cancelar plan'
+            'Visualizar planes', 'Acceder a datos de postulación', 'Guardar datos de postulación', 'Editar datos de postulación', 'Eliminar datos de postulación'
         ]);
 
         // Crear Institutions
@@ -102,7 +112,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'soporte@fundacionsharat.cl',
         ], [
             'rut' => '11675997-7',
-            'name' => 'Sharat',
+            'name' => 'Soporte Sharat',
             'email' => 'soporte@fundacionsharat.cl',
             'password' => Hash::make('Tsvsoporte2024@'),
             'institution_id' => 1,
@@ -214,6 +224,18 @@ class DatabaseSeeder extends Seeder
             'active' => 1,
             'user_id' => 6,
             'institution_id' => 3,
+        ]);
+
+        Plan::create([
+            'name' => 'Gratuito',
+            'monthly_price' => 0,
+            'yearly_price' => 0
+        ]);
+
+        Plan::create([
+            'name' => 'Premium',
+            'monthly_price' => 2500,
+            'yearly_price' => 30000
         ]);
     }
 }

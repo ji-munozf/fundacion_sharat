@@ -14,6 +14,14 @@
             'icon' => 'fa-solid fa-id-card-clip',
         ],
         [
+            'name' => 'Datos de postulación',
+            'url' => route('portal.premium_benefits.postulation_data'),
+            'active' => request()->routeIs('portal.premium_benefits.*'),
+            'icon' => 'fa-solid fa-user-pen',
+            'can' => ['Acceder a datos de postulación'],
+            'condition' => auth()->user()->plan_id === 2,
+        ],
+        [
             'name' => 'Planes',
             'url' => route('portal.plans.index'),
             'active' => request()->routeIs('portal.plans.*'),
@@ -89,7 +97,7 @@
         <div>
             <ul class="space-y-2 font-medium">
                 @foreach ($links as $link)
-                    @canany($link['can'] ?? [null])
+                    @if ((!isset($link['can']) || auth()->user()->can($link['can'][0])) && (!isset($link['condition']) || $link['condition']))
                         <li>
                             @if ($link['name'] === 'Cerrar sesión')
                                 <a href="{{ $link['url'] }}" onclick="event.preventDefault(); confirmLogout();"
@@ -112,7 +120,7 @@
                                 </a>
                             @endif
                         </li>
-                    @endcanany
+                    @endif
                 @endforeach
             </ul>
         </div>

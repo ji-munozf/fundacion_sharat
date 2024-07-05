@@ -7,7 +7,10 @@ use App\Models\Institution;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Malahierba\ChileRut\ChileRut;
 use Spatie\Permission\Models\Role;
 
@@ -18,11 +21,14 @@ class UserController extends Controller implements \Illuminate\Routing\Controlle
     {
         return [
             (new Middleware(middleware: 'can:Visualizar usuarios'))->only('index'),
+            (new Middleware(middleware: 'can:Visualizar usuarios admins'))->only('indexAdmins'),
+            (new Middleware(middleware: 'can:Visualizar usuarios instituciones'))->only('indexInstitutions'),
+            (new Middleware(middleware: 'can:Visualizar usuarios postulantes'))->only('indexPostulations'),
             (new Middleware(middleware: 'can:Crear usuarios'))->only('create'),
             (new Middleware(middleware: 'can:Actualizar usuarios'))->only('edit'),
             (new Middleware(middleware: 'can:Eliminar usuarios'))->only('destroy'),
             (new Middleware(middleware: 'can:Cambiar contraseña'))->only('password'),
-            (new Middleware(middleware: 'can:Acceder lista usuarios'))->only('listUserInstitution'),
+            (new Middleware(middleware: 'can:Hacer premium'))->only('makePremiumView'),
         ];
     }
 
@@ -44,7 +50,7 @@ class UserController extends Controller implements \Illuminate\Routing\Controlle
     public function indexAdmins()
     {
         // Obtener solo los usuarios con el rol "Admin"
-        $users = User::role('Admin')->get();
+        $users = User::role('Admin')->paginate();
 
         return view('portal.users.role.admin', compact('users'));
     }
@@ -52,7 +58,7 @@ class UserController extends Controller implements \Illuminate\Routing\Controlle
     public function indexInstitutions()
     {
         // Obtener solo los usuarios con el rol "Institución"
-        $users = User::role('Institución')->get();
+        $users = User::role('Institución')->paginate();
 
         return view('portal.users.role.institution', compact('users'));
     }
@@ -60,7 +66,7 @@ class UserController extends Controller implements \Illuminate\Routing\Controlle
     public function indexPostulations()
     {
         // Obtener solo los usuarios con el rol "Postulante"
-        $users = User::role('Postulante')->get();
+        $users = User::role('Postulante')->paginate();
 
         return view('portal.users.role.postulation', compact('users'));
     }
@@ -346,6 +352,112 @@ class UserController extends Controller implements \Illuminate\Routing\Controlle
         ]);
 
         return redirect()->route('portal.users.index');
+    }
+
+    /**
+     * Hacer premium al usuario con role postulante.
+     */
+    public function makePremiumView(User $user)
+    {
+        return view('portal.users.makePremiumView', compact('user'));
+    }
+
+    public function makePremium(User $user, Request $request)
+    {
+        // Validar los datos del formulario
+        $request->validate([
+            'duration' => 'required|in:1,2', // Mensual o Anual
+            'price' => 'required|numeric',
+            'file_input' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        // Establecer la zona horaria de Carbon a "America/Santiago"
+        Carbon::setLocale('es');
+        $timeZone = 'America/Santiago';
+        $startDate = Carbon::now($timeZone);
+        $endDate = $request->input('duration') == '1' ? $startDate->copy()->addMonth() : $startDate->copy()->addYear();
+
+        // Manejar el archivo subido
+        if ($request->hasFile('file_input')) {
+            $file = $request->file('file_input');
+            $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            $fileName = $originalFileName;
+            $destinationPath = 'comprobantes';
+            $counter = 1;
+
+            // Verificar si el archivo existe y modificar el nombre
+            while (Storage::disk('public')->exists("$destinationPath/$fileName.$extension")) {
+                $fileName = $originalFileName . "($counter)";
+                $counter++;
+            }
+
+            // Guardar el archivo en la carpeta destino
+            $filePath = $file->storeAs($destinationPath, "$fileName.$extension", 'public');
+        }
+
+        // Crear una nueva suscripción
+        DB::table('subscriptions')->insert([
+            'user_id' => $user->id,
+            'duration' => $request->input('duration') == '1' ? 'Mensual' : 'Anual',
+            'price' => $request->input('price'),
+            'bank_transfer_snapshot' => $filePath, // Guardar la ruta del archivo
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'created_at' => Carbon::now($timeZone),
+            'updated_at' => Carbon::now($timeZone),
+        ]);
+
+        // Actualizar el plan del usuario a Premium (id = 2)
+        $user->update(['plan_id' => 2]);
+
+        // Redirigir con un mensaje de éxito
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => '¡Bien hecho!',
+            'text' => 'El usuario ' . $user->name . ' se actualizó a premium exitosamente.',
+        ]);
+
+        return redirect()->route('portal.users.role.postulation');
+    }
+
+    public function cancelSubscription(User $user)
+    {
+        // Obtener la suscripción del usuario
+        $subscription = DB::table('subscriptions')
+            ->where('user_id', $user->id)
+            ->first();
+
+        if ($subscription) {
+            // Eliminar la imagen del comprobante de transferencia bancaria
+            if (Storage::disk('public')->exists($subscription->bank_transfer_snapshot)) {
+                Storage::disk('public')->delete($subscription->bank_transfer_snapshot);
+            }
+
+            // Eliminar la suscripción de la tabla subscriptions
+            DB::table('subscriptions')
+                ->where('user_id', $user->id)
+                ->delete();
+
+            // Actualizar el plan del usuario a Básico (id = 1)
+            $user->update(['plan_id' => 1]);
+
+            // Redirigir con un mensaje de éxito
+            session()->flash('swal', [
+                'icon' => 'success',
+                'title' => '¡Suscripción cancelada!',
+                'text' => 'La suscripción del usuario ' . $user->name . ' ha sido cancelada exitosamente.',
+            ]);
+        } else {
+            // Redirigir con un mensaje de error si no se encontró suscripción
+            session()->flash('swal', [
+                'icon' => 'error',
+                'title' => '¡Error!',
+                'text' => 'No se encontró ninguna suscripción activa para el usuario ' . $user->name . '.',
+            ]);
+        }
+
+        return redirect()->route('portal.users.role.postulation');
     }
 
     /**

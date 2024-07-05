@@ -3,71 +3,34 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
-use App\Models\Postulation;
-use App\Models\Vacancy;
+use App\Models\PostulationUserData;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Storage;
 
-class PostulationController extends Controller implements \Illuminate\Routing\Controllers\HasMiddleware
+class PremiumBenefitController extends Controller implements \Illuminate\Routing\Controllers\HasMiddleware
 
 {
     public static function middleware(): array
     {
         return [
-            (new Middleware(middleware: 'can:Visualizar postulación'))->only('index'),
-            (new Middleware(middleware: 'can:Crear postulación'))->only('requestVacancy'),
-            (new Middleware(middleware: 'can:Editar postulación'))->only('edit'),
-            (new Middleware(middleware: 'can:Cancelar postulación'))->only('destroy'),
+            (new Middleware(middleware: 'can:Acceder a datos de postulación'))->only('postulationData'),
+            (new Middleware(middleware: 'checkPlanId:2'))->only('postulationData'),
+            (new Middleware(middleware: 'can:Guardar datos de postulación'))->only('savePostulationData'),
+            (new Middleware(middleware: 'can:Editar datos de postulación'))->only('editPostulationData'),
+            (new Middleware(middleware: 'can:Eliminar datos de postulación'))->only('destroyPostulationData'),
         ];
     }
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    public function postulationData()
     {
         $user = auth()->user();
+        $postulationData = PostulationUserData::where('user_id', $user->id)->first();
 
-        // Verificar si el usuario tiene el rol de "Postulante" y plan_id 2
-        $isPostulantWithPlan2 = $user->hasRole('Postulante') && $user->plan_id == 2;
-
-        // Obtener las aplicaciones del usuario actual con sus respectivas vacantes y estados
-        $postulations = Postulation::where('user_id', $user->id)
-            ->with(['vacancy', 'status'])
-            ->get()
-            ->keyBy('vacancy_id');
-
-        // Filtrar vacantes activas e inactivas dependiendo del estado de la postulación del usuario
-        $activeVacancies = Vacancy::where('active', true);
-        $inactiveVacancies = Vacancy::where('active', false)
-            ->whereIn('id', $postulations->whereIn('status.status', [0, 1])->pluck('vacancy_id'));
-
-        // Unir ambas consultas
-        $vacancies = $activeVacancies->union($inactiveVacancies)->paginate();
-
-        // Verificar si el usuario tiene los roles 'Super admin' o 'Admin' o si es "Postulante" con plan_id 2
-        $hasUnlimitedApplications = $user->hasRole('Super admin') || $user->hasRole('Admin') || $isPostulantWithPlan2;
-
-        // Obtener el número de postulaciones del usuario actual en el mes actual si no tiene postulaciones ilimitadas
-        $currentMonthApplications = $hasUnlimitedApplications ? 0 : Postulation::where('user_id', $user->id)
-            ->whereMonth('created_at', date('m'))
-            ->count();
-
-        return view('portal.postulations.index', compact('vacancies', 'postulations', 'currentMonthApplications', 'hasUnlimitedApplications', 'isPostulantWithPlan2'));
+        return view('portal.premium_benefits.postulation_data', compact('postulationData'));
     }
 
-    /**
-     * Enviar postulación de la vacante.
-     */
-    public function requestVacancy(Vacancy $vacancy)
-    {
-        return view('portal.postulations.request_vacancy', compact('vacancy'));
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function sendRequestVacancy(Request $request, Vacancy $vacancy)
+    public function savePostulationData(Request $request)
     {
         // Validar los datos del formulario
         $request->validate([
@@ -96,19 +59,19 @@ class PostulationController extends Controller implements \Illuminate\Routing\Co
             $extension = $file->getClientOriginalExtension();
 
             // Verificar si el archivo ya existe y añadir un número si es necesario
-            $filePath = "curriculums/{$originalName}";
+            $filePath = "premium_user_curriculum_vitae/{$originalName}";
             $counter = 1;
             while (Storage::disk('public')->exists($filePath)) {
-                $filePath = "curriculums/{$fileName}_{$counter}.{$extension}";
+                $filePath = "premium_user_curriculum_vitae/{$fileName}_{$counter}.{$extension}";
                 $counter++;
             }
 
             // Guardar el archivo en la ubicación final
-            $file->storeAs('curriculums', basename($filePath), 'public');
+            $file->storeAs('premium_user_curriculum_vitae', basename($filePath), 'public');
         }
 
         // Guardar los datos en la base de datos
-        Postulation::create([
+        PostulationUserData::create([
             'names' => $request->input('names'),
             'last_names' => $request->input('last_names'),
             'email' => $request->input('email'),
@@ -116,7 +79,6 @@ class PostulationController extends Controller implements \Illuminate\Routing\Co
             'curriculum_vitae' => $filePath ?? null, // Ruta del archivo guardado
             'strengths' => $request->input('fortalezas'),
             'reasons' => $request->input('reasons'),
-            'vacancy_id' => $vacancy->id,
             'user_id' => auth()->user()->id, // ID del usuario autenticado
         ]);
 
@@ -124,27 +86,18 @@ class PostulationController extends Controller implements \Illuminate\Routing\Co
         session()->flash('swal', [
             'icon' => 'success',
             'title' => '¡Bien hecho!',
-            'text' => 'Se ha postulado a la vacante ' . $vacancy->name . ' correctamente.',
+            'text' => 'Sus datos de postulación se guardaron correctamente.',
         ]);
 
-        return redirect()->route('portal.postulations.index');
+        return redirect()->route('portal.premium_benefits.postulation_data');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Postulation $postulation)
+    public function editPostulationData(PostulationUserData $postulationUserData)
     {
-        // Cargar la relación vacancy para mostrar detalles de la vacante si es necesario
-        $postulation->load('vacancy');
-
-        return view('portal.postulations.edit', compact('postulation'));
+        return view('portal.premium_benefits.edit_postulation_data', compact('postulationUserData'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Postulation $postulation)
+    public function updatePostulationData(Request $request, PostulationUserData $postulationUserData)
     {
         // Validar los datos del formulario
         $request->validate([
@@ -184,16 +137,16 @@ class PostulationController extends Controller implements \Illuminate\Routing\Co
             $file->storeAs('curriculums', basename($filePath), 'public');
 
             // Borrar el archivo anterior si existe uno nuevo
-            if ($postulation->curriculum_vitae) {
-                Storage::disk('public')->delete($postulation->curriculum_vitae);
+            if ($postulationUserData->curriculum_vitae) {
+                Storage::disk('public')->delete($postulationUserData->curriculum_vitae);
             }
 
             // Actualizar la ruta del archivo en el modelo
-            $postulation->curriculum_vitae = $filePath;
+            $postulationUserData->curriculum_vitae = $filePath;
         }
 
         // Actualizar los datos en la base de datos
-        $postulation->update([
+        $postulationUserData->update([
             'names' => $request->input('names'),
             'last_names' => $request->input('last_names'),
             'email' => $request->input('email'),
@@ -206,49 +159,35 @@ class PostulationController extends Controller implements \Illuminate\Routing\Co
         session()->flash('swal', [
             'icon' => 'success',
             'title' => '¡Bien hecho!',
-            'text' => 'La postulación se actualizó correctamente',
+            'text' => 'Los datos de postulación se actualizaron correctamente',
         ]);
 
-        return redirect()->route('portal.postulations.index');
+        return redirect()->route('portal.premium_benefits.postulation_data');
     }
 
-    public function showReasons($postulationId)
+    public function destroyPostulationData()
     {
-        $postulation = Postulation::with('status')->findOrFail($postulationId);
+        $user = auth()->user();
+        $postulationData = PostulationUserData::where('user_id', $user->id)->firstOrFail();
 
-        if ($postulation->status) {
-            $status = $postulation->status->status ? 'aceptada' : 'rechazada';
-            $reasons = $postulation->status->reasons;
-
-            return view('portal.postulations.reasons', compact('status', 'reasons'));
-        }
-
-        return redirect()->route('portal.postulations.index')->with('error', 'La postulación no tiene un estado definido.');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Postulation $postulation)
-    {
         // Verificar si la aplicación tiene un archivo de currículum vitae
-        if ($postulation->curriculum_vitae) {
+        if ($postulationData->curriculum_vitae) {
             // Eliminar el archivo del sistema de archivos
-            Storage::disk('public')->delete($postulation->curriculum_vitae);
+            Storage::disk('public')->delete($postulationData->curriculum_vitae);
         }
 
         // Eliminar la aplicación de la base de datos
-        $postulation->delete();
+        $postulationData->delete();
 
         // Crear el mensaje de éxito con el nombre de la vacante
         session()->flash('swal', [
             'icon' => 'success',
             'title' => '¡Bien hecho!',
-            'text' => 'La postulación a la vacante se canceló correctamente',
+            'text' => 'Los datos de postulación se eliminaron correctamente',
         ]);
 
         // Redirigir al usuario a la página principal
-        return redirect()->route('portal.postulations.index');
+        return redirect()->route('portal.premium_benefits.postulation_data');
     }
 
 }

@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Models\Plan;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -44,11 +45,15 @@ class CreateNewUser implements CreatesNewUsers
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
 
+        // Obtener el plan gratuito
+        $freePlan = Plan::where('name', 'Gratuito')->first();
+
         $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'rut' => $input['rut'],
             'password' => Hash::make($input['password']),
+            'plan_id' => $freePlan->id, // Asignar el plan gratuito
         ]);
 
         $user->assignRole(4); // Asignar el rol con ID 4

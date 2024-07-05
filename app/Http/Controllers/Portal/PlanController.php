@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
+use App\Models\Plan;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Auth;
 
 class PlanController extends Controller implements \Illuminate\Routing\Controllers\HasMiddleware
 
@@ -20,7 +22,9 @@ class PlanController extends Controller implements \Illuminate\Routing\Controlle
      */
     public function index()
     {
-        return view('portal.plans.index');
+        $plans = Plan::all();
+        $currentPlan = Auth::user()->plan;
+        return view('portal.plans.index', compact('plans', 'currentPlan'));
     }
 
     /**

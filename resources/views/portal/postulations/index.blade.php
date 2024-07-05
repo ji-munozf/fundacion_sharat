@@ -14,6 +14,9 @@
             <table class="w-full text-sm rtl:text-right text-center text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
+                        @if ($isPostulantWithPlan2)
+                            <th scope="col" class="px-6 py-3">Seleccionar</th>
+                        @endif
                         <th scope="col" class="px-6 py-3">Nombre</th>
                         <th scope="col" class="px-6 py-3">Título del puesto</th>
                         <th scope="col" class="px-6 py-3">Descripción</th>
@@ -27,6 +30,13 @@
                 <tbody>
                     @foreach ($vacancies as $vacancy)
                         <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                            @if ($isPostulantWithPlan2)
+                                <td class="px-6 py-4">
+                                    <x-label>
+                                        <x-checkbox />
+                                    </x-label>
+                                </td>
+                            @endif
                             <td class="px-6 py-4">{{ $vacancy->name }}</td>
                             <td class="px-6 py-4">{{ $vacancy->job_title }}</td>
                             <td class="px-6 py-4">{{ $vacancy->description }}</td>

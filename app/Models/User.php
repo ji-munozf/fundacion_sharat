@@ -19,7 +19,7 @@ class User extends Authenticatable
     use HasFactory;
     use HasProfilePhoto;
     use Notifiable;
-    use TwoFactorAuthenticatable; 
+    use TwoFactorAuthenticatable;
     use HasRoles;
 
     /**
@@ -33,7 +33,8 @@ class User extends Authenticatable
         'email',
         'password',
         'institution_id',
-    ];
+        'plan_id',
+    ];    
 
     /**
      * The attributes that should be hidden for serialization.
@@ -77,5 +78,20 @@ class User extends Authenticatable
     public function postulations()
     {
         return $this->hasMany(Postulation::class);
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function postulationUserData()
+    {
+        return $this->hasOne(PostulationUserData::class);
     }
 }

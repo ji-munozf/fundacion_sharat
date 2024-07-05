@@ -5,6 +5,7 @@ use App\Http\Controllers\Portal\InstitutionController;
 use App\Http\Controllers\Portal\PermissionController;
 use App\Http\Controllers\Portal\PlanController;
 use App\Http\Controllers\Portal\PostulationController;
+use App\Http\Controllers\Portal\PremiumBenefitController;
 use App\Http\Controllers\Portal\RoleController;
 use App\Http\Controllers\Portal\UserController;
 use App\Http\Controllers\Portal\VacancyController;
@@ -23,6 +24,7 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
+    'check.subscriptions',
 ])->group(function () {
     Route::resource('/users', UserController::class)
         ->names('portal.users')
@@ -37,6 +39,12 @@ Route::middleware([
         ->name('portal.users.password');
     Route::post('/users/{user}/password', [UserController::class, 'updatePass'])
         ->name('portal.users.updatePass');
+    Route::get('/users/{user}/make-premium', [UserController::class, 'makePremiumView'])
+        ->name('portal.users.makePremiumView');
+    Route::post('/users/{user}/make-premium/', [UserController::class, 'makePremium'])
+        ->name('portal.users.makePremium');
+    Route::delete('/users/{user}/cancel-subscription', [UserController::class, 'cancelSubscription'])
+        ->name('portal.users.cancelSubscription');
 });
 
 Route::middleware([
@@ -105,12 +113,12 @@ Route::middleware([
     Route::resource('/postulations', PostulationController::class)
         ->names('portal.postulations')
         ->except(['create', 'store', 'show']);
-    Route::get('/postulations/request_vacancy/{vacancy}', [PostulationController::class, 'requestVacancy'])
+    Route::get('/postulations/request-vacancy/{vacancy}', [PostulationController::class, 'requestVacancy'])
         ->name('portal.postulations.request_vacancy');
-    Route::post('/postulations/request_vacancy/{vacancy}', [PostulationController::class, 'sendRequestVacancy'])
+    Route::post('/postulations/request-vacancy/{vacancy}', [PostulationController::class, 'sendRequestVacancy'])
         ->name('portal.postulations.sendRequestVacancy');
-    Route::get('/postulations/{id}/reasons', [PostulationController::class, 'showReasons'])->name('portal.postulations.showReasons');
-
+    Route::get('/postulations/{id}/reasons', [PostulationController::class, 'showReasons'])
+        ->name('portal.postulations.showReasons');
 });
 
 Route::middleware([
@@ -121,4 +129,22 @@ Route::middleware([
     Route::resource('/plans', PlanController::class)
         ->names('portal.plans')
         ->except('show');
+});
+
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+    'can:Acceso al dashboard',
+])->group(function () {
+    Route::get('/postulation_data', [PremiumBenefitController::class, 'postulationData'])
+        ->name('portal.premium_benefits.postulation_data');
+    Route::post('/postulation_data', [PremiumBenefitController::class, 'savePostulationData'])
+        ->name('portal.premium_benefits.savePostulationData');
+    Route::get('/postulation_data/{postulationUserData}/edit_postulation_data', [PremiumBenefitController::class, 'editPostulationData'])
+        ->name('portal.premium_benefits.edit_postulation_data');
+    Route::put('/postulation_data/{postulationUserData}/edit_postulation_data', [PremiumBenefitController::class, 'updatePostulationData'])
+        ->name('portal.premium_benefits.updatePostulationData');
+    Route::delete('/postulation_data', [PremiumBenefitController::class, 'destroyPostulationData'])
+        ->name('portal.premium_benefits.destroyPostulationData');
 });

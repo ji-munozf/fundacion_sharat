@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Institution;
 use App\Models\User;
 use App\Models\Vacancy;
+use Carbon\Carbon;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -16,6 +17,25 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user(); // Obtener el usuario logueado
+        $userPlanName = $user->plan ? $user->plan->name : 'No asignado'; // Obtener el nombre del plan del usuario
+        $subscription = $user->subscriptions()->latest()->first(); // Obtener la última suscripción del usuario
+
+        $planDuration = $subscription ? $subscription->duration : 'Desconocida';
+        $planEndDate = $subscription ? new Carbon($subscription->end_date) : null;
+
+        // Configurar la localización en español para Carbon
+        Carbon::setLocale('es');
+
+        // Formatear la fecha con el nombre del mes en español y convertir la primera letra del mes a minúscula
+        $planEndDateFormatted = $planEndDate ? $planEndDate->translatedFormat('d F Y \a \l\a\s H:i:s') : 'No disponible';
+
+        // Convertir la primera letra del mes a minúscula
+        $planEndDateFormatted = str_replace(
+            ['A Las', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+            ['a las', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+            $planEndDateFormatted
+        );
+
         $institution = $user->institution; // Obtener la institución del usuario logueado
 
         $userInstitutionName = $institution ? $institution->name : 'No asignada';
@@ -63,12 +83,14 @@ class DashboardController extends Controller
             'totalPermissions',
             'totalInstitutions',
             'totalVacancies',
-            'totalActiveVacancies', // Pasar el número de vacantes activas a la vista
-            'userInstitutionName', // Pasar el nombre de la institución del usuario a la vista
-            'userInstitutionUserCount', // Pasar la cantidad de usuarios en la institución a la vista
-            'userInstitutionVacancyCount', // Pasar la cantidad de vacantes creadas por la institución a la vista
-            'postulationsCount'
+            'totalActiveVacancies',
+            'userInstitutionName',
+            'userInstitutionUserCount',
+            'userInstitutionVacancyCount',
+            'postulationsCount',
+            'userPlanName',
+            'planDuration',
+            'planEndDateFormatted'
         ));
     }
-
 }
