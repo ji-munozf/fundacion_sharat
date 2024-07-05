@@ -1,3 +1,5 @@
+@section('title', 'Sharat - Register')
+
 <x-guest-layout>
     <x-authentication-card>
         <x-slot name="logo">
@@ -10,8 +12,16 @@
             @csrf
 
             <div>
+                <x-label for="rut" value="{{ __('RUT') }}" />
+                <x-input id="rut" class="block mt-1 w-full" type="text" name="rut" :value="old('rut')" required autofocus autocomplete="rut" />
+                <span class="text-xs text-gray-600 dark:text-gray-400">
+                    Recuerde agregar el guión antes del digito verificador. Ejemplo: xxxxxxx-x
+                </span>
+            </div>
+
+            <div class="mt-4">
                 <x-label for="name" value="{{ __('Name') }}" />
-                <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
+                <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autocomplete="name" />
             </div>
 
             <div class="mt-4">

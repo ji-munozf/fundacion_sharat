@@ -10,7 +10,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- <title>{{ config('app.name', 'Sharat Recruitment') }}</title> --}}
+    <!-- Favicon para modo claro -->
+    <link rel="icon" href="{{ asset('favicon_light.png') }}" media="(prefers-color-scheme: light)">
+    <!-- Favicon para modo oscuro -->
+    <link rel="icon" href="{{ asset('favicon_dark.png') }}" media="(prefers-color-scheme: dark)">
+
+
     <title>@yield('title', 'Sharat Recruitment')</title>
 
     <!-- Fonts -->
@@ -35,17 +40,17 @@
     @stack('css')
 </head>
 
-<body class="font-sans antialiased bg-gray-100 dark:bg-gray-900 dark:border-gray-800" x-data="{
+<body class="font-sans antialiased bg-gray-100 dark:bg-gray-900" x-data="{
     open: false,
 }">
 
-    @include('layouts.includes.portal.nav')
+    @include('layouts.includes.nav')
 
-    @include('layouts.includes.portal.aside')
+    @include('layouts.includes.aside')
 
     <div class="p-4 sm:ml-64">
 
-        @include('layouts.includes.portal.breadcrumb')
+        @include('layouts.includes.breadcrumb')
 
         <div class="p-4 border-2 border-gray-300 border-dashed rounded-lg dark:border-gray-500 mt-14 dark:text-white">
 

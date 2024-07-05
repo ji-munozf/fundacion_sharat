@@ -31,4 +31,9 @@ class Vacancy extends Model
     {
         return $this->belongsTo(Institution::class);
     }
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class);
+    }
 }

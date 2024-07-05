@@ -52,24 +52,27 @@ class DatabaseSeeder extends Seeder
         Permission::create(['name' => 'Visualizar vacantes publicadas']);
         Permission::create(['name' => 'Solicitar vacante']);
 
+        Permission::create(['name' => 'Visualizar postulación']);
+        Permission::create(['name' => 'Crear postulación']);
+        Permission::create(['name' => 'Editar postulación']);
+        Permission::create(['name' => 'Cancelar postulación']);
+
         // Crear Roles
         $superAdminRole = Role::create(['name' => 'Super admin']);
         $adminRole = Role::create(['name' => 'Admin']);
         $institucionRole = Role::create(['name' => 'Institución']);
-
-        // Asignar permisos al rol de admin
-        $adminRole->givePermissionTo(['Acceso al dashboard',
-            'Visualizar usuarios', 'Crear usuarios', 'Actualizar usuarios', 'Eliminar usuarios', 'Cambiar contraseña',
-            'Visualizar roles', 'Crear roles', 'Actualizar roles', 'Eliminar roles', 'Añadir permisos',
-            'Visualizar permisos', 'Crear permisos', 'Actualizar permisos', 'Eliminar permisos',
-            'Visualizar instituciones', 'Crear instituciones', 'Actualizar instituciones', 'Eliminar instituciones',
-            'Visualizar vacantes', 'Crear vacantes', 'Actualizar vacantes', 'Eliminar vacantes', 'Visualizar vacantes publicadas', 'Solicitar vacante',
-        ]);
+        $postulanteRole = Role::create(['name' => 'Postulante']);
 
         // Asignar permisos al rol de institución
         $institucionRole->givePermissionTo([
             'Acceso al dashboard', 'Visualizar usuarios',
             'Visualizar vacantes', 'Crear vacantes', 'Actualizar vacantes', 'Eliminar vacantes', 'Visualizar vacantes publicadas', 'Solicitar vacante',
+        ]);
+
+        // Asignar permisos al rol de postulante
+        $postulanteRole->givePermissionTo([
+            'Acceso al dashboard',
+            'Visualizar postulación', 'Crear postulación', 'Editar postulación', 'Cancelar postulación'
         ]);
 
         // Crear Institutions
@@ -82,7 +85,8 @@ class DatabaseSeeder extends Seeder
         $superAdminUser = User::firstOrCreate([
             'email' => 'superadmin@sharat.cl',
         ], [
-            'name' => 'Super Admin Sharat',
+            'rut' => '11675997-7',
+            'name' => 'Sharat',
             'email' => 'superadmin@sharat.cl',
             'password' => Hash::make('Tsvsoporte2024@'),
             'institution_id' => 1,
@@ -93,6 +97,7 @@ class DatabaseSeeder extends Seeder
         $adminUser = User::firstOrCreate([
             'email' => 'ji.munozf.1999@gmail.com',
         ], [
+            'rut' => '20287177-1',
             'name' => 'Juan Ignacio',
             'email' => 'ji.munozf.1999@gmail.com',
             'password' => Hash::make('JuanIgnacio1'),
@@ -104,6 +109,7 @@ class DatabaseSeeder extends Seeder
         $institucionUser1 = User::firstOrCreate([
             'email' => 'test@test.cl',
         ], [
+            'rut' => '13197256-3',
             'name' => 'Test',
             'email' => 'test@test.cl',
             'password' => Hash::make('12345678'),
@@ -115,6 +121,7 @@ class DatabaseSeeder extends Seeder
         $institucionUser2 = User::firstOrCreate([
             'email' => 'test2@test.cl',
         ], [
+            'rut' => '11232425-9',
             'name' => 'Test2',
             'email' => 'test2@test.cl',
             'password' => Hash::make('12345678'),
@@ -126,6 +133,7 @@ class DatabaseSeeder extends Seeder
         $institucionUser3 = User::firstOrCreate([
             'email' => 'test3@test.cl',
         ], [
+            'rut' => '17013603-9',
             'name' => 'Test3',
             'email' => 'test3@test.cl',
             'password' => Hash::make('12345678'),
@@ -137,6 +145,7 @@ class DatabaseSeeder extends Seeder
         $institucionUser4 = User::firstOrCreate([
             'email' => 'test4@test.cl',
         ], [
+            'rut' => '15132109-7',
             'name' => 'Test4',
             'email' => 'test4@test.cl',
             'password' => Hash::make('12345678'),

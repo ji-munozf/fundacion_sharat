@@ -13,58 +13,17 @@
                         </path>
                     </svg>
                 </button>
-                <a href="{{ route('dashboard') }}" class="flex ms-2 md:me-24">
-                    <img src="https://flowbite.com/docs/images/logo.svg" class="h-8 me-3" alt="FlowBite Logo" />
+                <a href="{{ route('portal.dashboard') }}" class="flex ms-2 md:me-24">
+                    <picture>
+                        <!-- Imagen para modo oscuro -->
+                        <source srcset="{{ asset('favicon_dark.png') }}" media="(prefers-color-scheme: dark)">
+                        <!-- Imagen por defecto para modo claro -->
+                        <img src="{{ asset('favicon_light.png') }}" class="h-10 me-3" alt="Sharat Recruitment Logo" />
+                    </picture>
                     <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Sharat
                         Recruitment</span>
                 </a>
             </div>
-            @auth
-                <div class="flex items-center">
-                    <div class="ms-3 relative">
-                        <x-dropdown align="right" width="48">
-                            <x-slot name="trigger">
-                                @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-                                    <button
-                                        class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
-                                        <img class="h-8 w-8 rounded-full object-cover"
-                                            src="{{ auth()->user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
-                                    </button>
-                                @else
-                                    <span class="inline-flex rounded-md">
-                                        <button type="button"
-                                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none focus:bg-gray-50 active:bg-gray-50 transition ease-in-out duration-150">
-                                            {{ Auth::user()->name }}
-                                        </button>
-                                    </span>
-                                @endif
-                            </x-slot>
-
-                            <x-slot name="content">
-                                <!-- Account Management -->
-                                <div class="block px-4 py-2 text-xs text-gray-400">
-                                    {{ __('Manage Account') }}
-                                </div>
-
-                                <x-dropdown-link href="{{ route('profile.show') }}">
-                                    {{ __('Profile') }}
-                                </x-dropdown-link>
-
-                                <div class="border-t border-gray-200"></div>
-
-                                <!-- Authentication -->
-                                <form method="POST" action="{{ route('logout') }}" x-data>
-                                    @csrf
-
-                                    <x-dropdown-link href="{{ route('logout') }}" @click.prevent="$root.submit();">
-                                        {{ __('Log Out') }}
-                                    </x-dropdown-link>
-                                </form>
-                            </x-slot>
-                        </x-dropdown>
-                    </div>
-                </div>
-            @endauth
         </div>
     </div>
 </nav>

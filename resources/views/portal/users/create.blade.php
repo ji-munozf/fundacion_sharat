@@ -3,11 +3,11 @@
 <x-portal-layout :breadcrumb="[
     [
         'name' => 'Home',
-        'url' => route('portal.dashboard')
+        'url' => route('portal.dashboard'),
     ],
     [
         'name' => 'Usuarios',
-        'url' => route('portal.users.index')
+        'url' => route('portal.users.index'),
     ],
     [
         'name' => 'Nuevo',
@@ -16,10 +16,21 @@
     <div class="bg-white shadow rounded-lg p-6 dark:bg-gray-800">
         <form action="{{ route('portal.users.store') }}" method="POST"
             class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-
             @csrf
 
             <x-validation-errors class="mb-4" />
+
+            <div class="mb-4">
+                <x-label class="mb-2">
+                    RUT del usuario
+                </x-label>
+
+                <x-input name="rut" type="text" class="w-full mb-1" placeholder="Ingrese el RUT del usuario"
+                    value="{{ old('rut') }}" />
+                <span class="text-xs ml-1 text-gray-600 dark:text-gray-400">
+                    Recuerde agregar el guión antes del digito verificador. Ejemplo: xxxxxxx-x
+                </span>
+            </div>
 
             <div class="mb-4">
                 <x-label class="mb-2">
@@ -63,7 +74,7 @@
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <option value="">Seleccione un rol</option>
                     @foreach ($roles as $role)
-                        <option value="{{ $role->name }}">
+                        <option value="{{ $role->name }}" {{ old('role') == $role->name ? 'selected' : '' }}>
                             {{ $role->name }}
                         </option>
                     @endforeach
@@ -76,12 +87,13 @@
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <option value="">Seleccione una institución</option>
                     @foreach ($institutions as $institution)
-                        <option value="{{ $institution->id }}">
+                        <option value="{{ $institution->id }}"
+                            {{ old('institution_id') == $institution->id ? 'selected' : '' }}>
                             {{ $institution->name }}
                         </option>
                     @endforeach
                 </select>
-            </div>    
+            </div>
 
             <div class="flex justify-end">
                 <button type="submit"

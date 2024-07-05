@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
+use App\Models\Application;
 use App\Models\Institution;
 use App\Models\Vacancy;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class VacancyController extends Controller implements \Illuminate\Routing\Controllers\HasMiddleware
 
@@ -21,6 +23,7 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
             (new Middleware(middleware: 'can:Eliminar vacantes'))->only('destroy'),
         ];
     }
+
     /**
      * Display a listing of the resource.
      */
@@ -29,7 +32,7 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
         // Obtener el usuario autenticado
         $user = Auth::user();
 
-        // Verificar si el usuario tiene los roles de Super admin o Admin
+        // Obtener todas las vacantes
         if ($user->hasRole(['Super admin', 'Admin'])) {
             // Mostrar todas las vacantes sin importar la institución
             $vacancies = Vacancy::with('institution')->paginate();
@@ -41,9 +44,15 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
             $vacancies = Vacancy::where('institution_id', $institutionId)->with('institution')->paginate();
         }
 
+        // Calcular el número de nuevas postulaciones para cada vacante
+        foreach ($vacancies as $vacancy) {
+            $newApplicationsCount = Application::where('vacancy_id', $vacancy->id)->count();
+            $vacancy->newApplicationsCount = $newApplicationsCount;
+        }
+
         return view('portal.vacancies.index', compact('vacancies'));
     }
-
+    
     /**
      * Show the form for creating a new resource.
      */
@@ -149,26 +158,35 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
     /**
      * Visualizar candidatos.
      */
-    public function vacanciesPosted(Vacancy $vacancy)
+    public function candidates(Vacancy $vacancy)
     {
-        // Filtra solo las vacantes activas
-        $vacancies = Vacancy::where('active', true)->paginate();
-        return view('portal.vacancies.vacancies_posted', compact('vacancies'));
+        $applications = DB::table('applications')
+            ->join('vacancies', 'applications.vacancy_id', '=', 'vacancies.id')
+            ->join('users', 'applications.user_id', '=', 'users.id')
+            ->select('applications.*', 'vacancies.job_title as vacancy_title', 'users.name as user_name')
+            ->where('applications.vacancy_id', $vacancy->id)
+            ->get();
+
+        return view('portal.vacancies.candidates', ['applications' => $applications, 'vacancy' => $vacancy]);
     }
 
-    public function requestVacancy(Vacancy $vacancy)
+    public function downloadCV($id)
     {
-        return view('portal.vacancies.request_vacancy', compact('vacancy'));
-    }
+        $application = Application::find($id);
 
-    public function sendRequestVacancy(Vacancy $vacancy)
-    {
+        if ($application && $application->curriculum_vitae) {
+            $filePath = storage_path('app/public/' . $application->curriculum_vitae);
 
-    }
-
-    public function candidates()
-    {
-        return view('portal.vacancies.candidates');
+            if (file_exists($filePath)) {
+                return response()->download($filePath, basename($filePath), [
+                    'Content-Type' => mime_content_type($filePath),
+                ]);
+            } else {
+                return redirect()->back()->with('error', 'El currículum vitae no se encontró.');
+            }
+        } else {
+            return redirect()->back()->with('error', 'El currículum vitae no se encontró.');
+        }
     }
 
     /**

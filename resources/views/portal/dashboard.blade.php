@@ -10,12 +10,18 @@
                 </button>
 
                 <div class="mt-4 text-center">
-                    <h2 class="text-lg font-semibold">
+                    <h2 class="text-lg font-semibold ">
                         Bienvenido al portal de Sharat Recruitment
                     </h2>
-                    <div class="text-center text-lg">
+                    <div class="text-center text-lg font-medium text-gray-500 dark:text-gray-300">
                         <p>
-                            {{ Auth::user()->name }}
+                            @if (Auth::user()->hasRole('Super admin'))
+                                Super admin {{ Auth::user()->name }}
+                            @elseif(Auth::user()->hasRole('Admin'))
+                                Admin {{ Auth::user()->name }}
+                            @else
+                                {{ Auth::user()->name }}
+                            @endif
                         </p>
                     </div>
                 </div>
@@ -23,21 +29,23 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-6 mb-5">
-        <div class="bg-white rounded-lg shadow-lg p-6 dark:bg-gray-800 flex flex-col">
-            <div class="text-xl text-center font-semibold">
-                <h1 class="text-lg font-semibold">
-                    <i class="fa-solid fa-building-columns text-start mr-1"></i>
-                    Nombre de la institución
-                </h1>
-            </div>
-            <div class="text-center">
-                <p>
-                    {{ $userInstitutionName }}
-                </p>
+    @role('Super admin|Admin|Institución')
+        <div class="grid grid-cols-1 gap-6 mb-5">
+            <div class="bg-white rounded-lg shadow-lg p-6 dark:bg-gray-800 flex flex-col">
+                <div class="text-xl text-center font-semibold">
+                    <h1 class="text-lg font-semibold">
+                        <i class="fa-solid fa-building-columns text-start mr-1"></i>
+                        Nombre de la institución
+                    </h1>
+                </div>
+                <div class="text-center text-lg font-medium text-gray-500 dark:text-gray-300">
+                    <p>
+                        {{ $userInstitutionName }}
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
+    @endrole
 
     @role('Super admin|Admin')
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-5">
@@ -48,7 +56,7 @@
                         Usuarios
                     </h1>
                 </div>
-                <div class="mb-2 text-m text-center font-medium text-gray-300">
+                <div class="mb-2 text-m text-center font-medium text-gray-500 dark:text-gray-300">
                     Se han creado {{ $totalUsers }} usuarios.
                 </div>
                 <div class="flex justify-center mb-4">
@@ -66,7 +74,7 @@
                     <i class="fa-solid fa-user-tag text-start mr-1"></i>
                     Roles
                 </h1>
-                <div class="mb-2 text-m text-center font-medium text-gray-300">
+                <div class="mb-2 text-m text-center font-medium text-gray-500 dark:text-gray-300">
                     Se han creado {{ $totalRoles }} roles
                 </div>
                 <div class="flex justify-center mb-4">
@@ -84,7 +92,7 @@
                     <i class="fa-solid fa-key text-start mr-1"></i>
                     Permisos
                 </h1>
-                <div class="mb-2 text-m text-center font-medium text-gray-300">
+                <div class="mb-2 text-m text-center font-medium text-gray-500 dark:text-gray-300">
                     Se han creado {{ $totalPermissions }} permisos
                 </div>
                 <div class="flex justify-center mb-4">
@@ -102,7 +110,7 @@
                     <i class="fa-solid fa-building-columns text-start mr-1"></i>
                     Instituciones
                 </h1>
-                <div class="mb-2 text-m text-center font-medium text-gray-300">
+                <div class="mb-2 text-m text-center font-medium text-gray-500 dark:text-gray-300">
                     Se han creado {{ $totalInstitutions }} instituciones
                 </div>
                 <div class="flex justify-center mb-4">
@@ -127,7 +135,7 @@
                     <div class="mb-1 text-base font-medium dark:text-white">
                         {{ $roleName }}
                     </div>
-                    <div class="mb-1 text-sm font-medium text-gray-300">
+                    <div class="mb-1 text-sm font-medium text-gray-500 dark:text-gray-300">
                         Cantidad de usuarios en el rol {{ strtolower($roleName) }}: {{ $userCount }}
                     </div>
                     <div class="flex items-center">
@@ -152,7 +160,7 @@
                     <div class="mb-1 text-base font-medium dark:text-white">
                         {{ $institutionName }}
                     </div>
-                    <div class="mb-1 text-sm font-medium text-gray-300">
+                    <div class="mb-1 text-sm font-medium text-gray-500 dark:text-gray-300">
                         Cantidad de usuarios en la institución {{ strtolower($institutionName) }}: {{ $userCount }}
                     </div>
                     <div class="flex items-center">
@@ -175,7 +183,7 @@
                     <i class="fa-solid fa-key text-start mr-1"></i>
                     Vacantes
                 </h1>
-                <div class="mb-2 text-m text-center font-medium text-gray-300">
+                <div class="mb-2 text-m text-center font-medium text-gray-500 dark:text-gray-300">
                     Se han creado {{ $totalVacancies }} vacantes
                 </div>
                 <div class="flex justify-center mb-4">
@@ -200,7 +208,7 @@
                     <div class="mb-1 text-base font-medium dark:text-white">
                         {{ $institutionName }}
                     </div>
-                    <div class="mb-1 text-sm font-medium text-gray-300">
+                    <div class="mb-1 text-sm font-medium text-gray-500 dark:text-gray-300">
                         Cantidad de vacantes de la institución {{ strtolower($institutionName) }}: {{ $vacancyCount }}
                     </div>
                     <div class="flex items-center">
@@ -227,7 +235,7 @@
                         Usuarios
                     </h1>
                 </div>
-                <div class="mb-2 text-center font-medium text-gray-300">
+                <div class="mb-2 text-center font-medium text-gray-500 dark:text-gray-300">
                     En la institución {{ strtolower($userInstitutionName) }} hay registrados
                     {{ $userInstitutionUserCount }} usuarios
                 </div>
@@ -248,7 +256,7 @@
                         Vacantes
                     </h1>
                 </div>
-                <div class="mb-2 text-center font-medium text-gray-300">
+                <div class="mb-2 text-center font-medium text-gray-500 dark:text-gray-300">
                     En la institución {{ strtolower($userInstitutionName) }} han creado {{ $userInstitutionVacancyCount }}
                     vacantes
                 </div>

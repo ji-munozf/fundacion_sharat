@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Hash;
+use Malahierba\ChileRut\ChileRut;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller implements \Illuminate\Routing\Controllers\HasMiddleware
@@ -63,13 +64,35 @@ class UserController extends Controller implements \Illuminate\Routing\Controlle
             'email' => 'required|string|max:255|unique:users,email',
             'password' => 'required|min:12|max:255',
             'confirm_password' => 'required|same:password',
-            'role' => 'required|string|exists:roles,name', // Validar que el rol exista
+            'role' => 'required|string|exists:roles,name',
+            'institution_id' => 'required|integer|exists:institutions,id',
+            'rut' => ['required', 'string', function ($attribute, $value, $fail) {
+                try {
+                    $chileRut = new ChileRut();
+
+                    // Verifica si el RUT es válido
+                    if (!$chileRut->check($value)) {
+                        return $fail('El ' . $attribute . ' no es válido.');
+                    }
+
+                    // Verifica si el RUT contiene un guion
+                    if (strpos($value, '-') === false) {
+                        return $fail('El ' . $attribute . ' debe contener un guion antes del dígito verificador.');
+                    }
+                } catch (\Exception $e) {
+                    return $fail('El ' . $attribute . ' no es válido.');
+                }
+            }],
         ]);
+
+        $rut = $request->input('rut');
 
         $user = User::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'password' => bcrypt($request->input('password')),
+            'rut' => $rut,
+            'institution_id' => $request->input('institution_id'),
         ]);
 
         // Asignar el rol al usuario
@@ -116,6 +139,23 @@ class UserController extends Controller implements \Illuminate\Routing\Controlle
             'email' => "required|email|max:255|unique:users,email,{$user->id}",
             'role' => 'required|string|exists:roles,name',
             'institution_id' => 'required|integer|exists:institutions,id',
+            'rut' => ['required', 'string', function ($attribute, $value, $fail) {
+                try {
+                    $chileRut = new ChileRut();
+
+                    // Verifica si el RUT es válido
+                    if (!$chileRut->check($value)) {
+                        return $fail('El ' . $attribute . ' no es válido.');
+                    }
+
+                    // Verifica si el RUT contiene un guion
+                    if (strpos($value, '-') === false) {
+                        return $fail('El ' . $attribute . ' debe contener un guion antes del dígito verificador.');
+                    }
+                } catch (\Exception $e) {
+                    return $fail('El ' . $attribute . ' no es válido.');
+                }
+            }],
         ]);
 
         $user->update($request->all());

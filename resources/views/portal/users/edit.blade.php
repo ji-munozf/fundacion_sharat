@@ -27,6 +27,13 @@
             <x-validation-errors class="mb-4" />
 
             <div class="mb-4">
+                <x-label for="rut" class="mb-2">
+                    RUT del usuario
+                </x-label>
+                <x-input type="text" id="rut" name="rut" class="w-full" value="{{ old('rut', $user->rut) }}" />
+            </div>
+
+            <div class="mb-4">
                 <x-label class="mb-2">
                     Nombre del usuario
                 </x-label>
