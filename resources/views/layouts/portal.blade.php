@@ -1,3 +1,7 @@
+@props([
+    'breadcrumb' => [],
+])
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
@@ -28,16 +32,19 @@
     @stack('css')
 </head>
 
-<body class="font-sans antialiased bg-white dark:bg-gray-800 dark:border-gray-700" x-data="{
+<body class="font-sans antialiased bg-white dark:bg-gray-900 dark:border-gray-800" x-data="{
     open: false,
 }">
 
-    @include('layouts.includes.nav')
+    @include('layouts.includes.portal.nav')
 
-    @include('layouts.includes.aside')
+    @include('layouts.includes.portal.aside')
 
     <div class="p-4 sm:ml-64">
-        <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-200 mt-14 dark:text-white">
+
+        @include('layouts.includes.portal.breadcrumb')
+
+        <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-500 mt-14 dark:text-white">
 
             {{ $slot }}
 

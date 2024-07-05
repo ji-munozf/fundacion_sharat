@@ -1,6 +1,14 @@
 @section('title', 'Sharat - Permissions')
 
-<x-portal-layout>
+<x-portal-layout :breadcrumb="[
+    [
+        'name' => 'Home',
+        'url' => route('portal.dashboard')
+    ],
+    [
+        'name' => 'Permisos',
+    ],
+]">
     <div class="flex justify-end mb-4">
         <a href="{{ route('portal.permissions.create') }}">
             <button type="button"
@@ -23,7 +31,7 @@
                             Nombre
                         </th>
                         <th scope="col" class="px-6 py-3">
-                            Permisos
+                            Acciones
                         </th>
                     </tr>
                 </thead>

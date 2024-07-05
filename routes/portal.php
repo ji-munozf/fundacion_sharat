@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Portal\InstitutionController;
 use App\Http\Controllers\Portal\PermissionController;
 use App\Http\Controllers\Portal\RoleController;
 use App\Http\Controllers\Portal\UserController;
@@ -14,7 +15,7 @@ Route::middleware([
 ])->group(function () {
     Route::get('/dashboard', function () {
         return view('portal.dashboard');
-    })->name('dashboard');
+    })->name('portal.dashboard');
 });
 
 Route::middleware([
@@ -62,5 +63,17 @@ Route::middleware([
 ])->group(function () {
     Route::resource('/vacancies', VacancyController::class)
     ->names('portal.vacancies')
+    ->except('show');
+    Route::get('/vacancies/{vacancy}/candidates', [VacancyController::class, 'candidates'])
+    ->name('portal.vacancies.candidates');
+});
+
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->group(function () {
+    Route::resource('/institutions', InstitutionController::class)
+    ->names('portal.institutions')
     ->except('show');
 });

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
+use App\Models\Institution;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller implements \Illuminate\Routing\Controllers\HasMiddleware
+
 {
     public static function middleware(): array
     {
@@ -37,7 +39,8 @@ class UserController extends Controller implements \Illuminate\Routing\Controlle
     public function create()
     {
         $roles = Role::all();
-        return view('portal.users.create', compact('roles'));
+        $institutions = Institution::all();
+        return view('portal.users.create', compact('roles', 'institutions'));
     }
 
     /**
@@ -84,12 +87,13 @@ class UserController extends Controller implements \Illuminate\Routing\Controlle
      */
     public function edit(User $user)
     {
-        if ((auth()->user()->hasRole('Super admin') && auth()->user()->id == $user->id) || ($user->name == 'Super admin' && auth()->user()->hasRole('Admin'))) {
+        if (($user->name == 'Super admin' && auth()->user()->hasRole('Admin'))) {
             abort(403);
         }
 
         $roles = Role::all();
-        return view('portal.users.edit', compact('user', 'roles'));
+        $institutions = Institution::all();
+        return view('portal.users.edit', compact('user', 'roles', 'institutions'));
     }
 
     /**
@@ -101,6 +105,7 @@ class UserController extends Controller implements \Illuminate\Routing\Controlle
             'name' => 'required|string|max:255',
             'email' => "required|email|max:255|unique:users,email,{$user->id}",
             'role' => 'required|string|exists:roles,name',
+            'institution_id' => 'required|integer|exists:institutions,id',
         ]);
 
         $user->update($request->all());

@@ -1,9 +1,21 @@
 @section('title', 'Sharat - Create permission')
 
-<x-portal-layout>
-    <div class="bg-white shadow rounded-lg p-6 dark:bg-gray-700">
+<x-portal-layout :breadcrumb="[
+    [
+        'name' => 'Home',
+        'url' => route('portal.dashboard')
+    ],
+    [
+        'name' => 'Permisos',
+        'url' => route('portal.permissions.index')
+    ],
+    [
+        'name' => 'Nuevo',
+    ],
+]">
+    <div class="bg-white shadow rounded-lg p-6 dark:bg-gray-800">
         <form action="{{ route('portal.permissions.store') }}" method="POST">
-            @csrf   
+            @csrf
 
             <x-validation-errors class="mb-4" />
 

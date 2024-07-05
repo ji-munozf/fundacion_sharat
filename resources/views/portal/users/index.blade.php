@@ -1,6 +1,14 @@
 @section('title', 'Sharat - Users')
 
-<x-portal-layout>
+<x-portal-layout :breadcrumb="[
+    [
+        'name' => 'Home',
+        'url' => route('portal.dashboard')
+    ],
+    [
+        'name' => 'Usuarios',
+    ],
+]">
     <div class="flex justify-end mb-4">
         <a href="{{ route('portal.users.create') }}">
             <button type="button"
