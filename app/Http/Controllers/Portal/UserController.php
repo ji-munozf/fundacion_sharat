@@ -21,6 +21,7 @@ class UserController extends Controller implements \Illuminate\Routing\Controlle
             (new Middleware(middleware: 'can:Actualizar usuarios'))->only('edit'),
             (new Middleware(middleware: 'can:Eliminar usuarios'))->only('destroy'),
             (new Middleware(middleware: 'can:Cambiar contraseña'))->only('password'),
+            (new Middleware(middleware: 'can:Acceder lista usuarios'))->only('listUserInstitution'),
         ];
     }
 
@@ -29,7 +30,16 @@ class UserController extends Controller implements \Illuminate\Routing\Controlle
      */
     public function index()
     {
-        $users = User::paginate();
+        $currentUser = auth()->user();
+
+        if ($currentUser->hasAnyRole(['Admin', 'Super admin'])) {
+            // Si el usuario tiene rol admin o super admin, muestra todos los usuarios
+            $users = User::with('institution')->paginate();
+        } else {
+            // Si el usuario no tiene rol admin o super admin, muestra solo los usuarios de la misma institución
+            $users = User::where('institution_id', $currentUser->institution_id)->with('institution')->paginate();
+        }
+
         return view('portal.users.index', compact('users'));
     }
 

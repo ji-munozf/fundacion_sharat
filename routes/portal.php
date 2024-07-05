@@ -11,17 +11,6 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
-    'can:Acceso al dashboard'
-])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('portal.dashboard');
-    })->name('portal.dashboard');
-});
-
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
 ])->group(function () {
     Route::resource('/users', UserController::class)
     ->names('portal.users')
@@ -64,8 +53,14 @@ Route::middleware([
     Route::resource('/vacancies', VacancyController::class)
     ->names('portal.vacancies')
     ->except('show');
+    Route::get('/vacancies/vacancies_posted', [VacancyController::class, 'vacanciesPosted'])
+    ->name('portal.vacancies.vacancies_posted');
+    Route::get('/vacancies/vacancies_posted/request_vacancy/{vacancy}', [VacancyController::class, 'requestVacancy'])
+    ->name('portal.vacancies.requestVacancy');
     Route::get('/vacancies/{vacancy}/candidates', [VacancyController::class, 'candidates'])
     ->name('portal.vacancies.candidates');
+    Route::post('/vacancies/{vacancy}/candidates', [VacancyController::class, 'sendRequestVacancy'])
+    ->name('portal.vacancies.sendRequestVacancy');
 });
 
 Route::middleware([

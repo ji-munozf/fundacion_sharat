@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
+use App\Models\Institution;
 use App\Models\Vacancy;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
@@ -25,13 +26,20 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
      */
     public function index()
     {
-        // Obtener la institución del usuario autenticado
-        $institutionId = Auth::user()->institution_id;
+        // Obtener el usuario autenticado
+        $user = Auth::user();
 
-        // Filtrar las vacantes por la institución del usuario y cargar las relaciones necesarias
-        $vacancies = Vacancy::whereHas('user', function ($query) use ($institutionId) {
-            $query->where('institution_id', $institutionId);
-        })->with('user.institution')->paginate();
+        // Verificar si el usuario tiene los roles de Super admin o Admin
+        if ($user->hasRole(['Super admin', 'Admin'])) {
+            // Mostrar todas las vacantes sin importar la institución
+            $vacancies = Vacancy::with('institution')->paginate();
+        } else {
+            // Obtener la institución del usuario autenticado
+            $institutionId = $user->institution_id;
+
+            // Filtrar las vacantes por la institución del usuario
+            $vacancies = Vacancy::where('institution_id', $institutionId)->with('institution')->paginate();
+        }
 
         return view('portal.vacancies.index', compact('vacancies'));
     }
@@ -41,7 +49,8 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
      */
     public function create()
     {
-        return view('portal.vacancies.create');
+        $institutions = Institution::all();
+        return view('portal.vacancies.create', compact('institutions'));
     }
 
     /**
@@ -67,13 +76,22 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
         // Agregar la ID del usuario autenticado
         $validated['user_id'] = Auth::id();
 
+        // Verificar si el usuario tiene roles Super admin o Admin
+        if (Auth::user()->hasRole(['Super admin', 'Admin'])) {
+            // Si tiene los roles, agregar la institución seleccionada en el formulario
+            $validated['institution_id'] = $request->input('institution_id');
+        } else {
+            // Si no tiene los roles, agregar la institución del usuario autenticado
+            $validated['institution_id'] = Auth::user()->institution_id;
+        }
+
         // Crear la vacante
         $vacancy = Vacancy::create($validated);
 
         session()->flash('swal', [
             'icon' => 'success',
             'title' => '¡Bien hecho!',
-            'text' => 'El usuario ' . $vacancy->name . ' se creó correctamente.',
+            'text' => 'La vacante ' . $vacancy->name . ' se creó correctamente.',
         ]);
 
         // Redireccionar a la lista de vacantes
@@ -121,7 +139,7 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
         session()->flash('swal', [
             'icon' => 'success',
             'title' => '¡Bien hecho!',
-            'text' => 'El usuario ' . $vacancy->name . ' se actualizó correctamente.',
+            'text' => 'La vacante ' . $vacancy->name . ' se actualizó correctamente.',
         ]);
 
         // Redireccionar a la lista de vacantes
@@ -131,6 +149,23 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
     /**
      * Visualizar candidatos.
      */
+    public function vacanciesPosted(Vacancy $vacancy)
+    {
+        // Filtra solo las vacantes activas
+        $vacancies = Vacancy::where('active', true)->paginate();
+        return view('portal.vacancies.vacancies_posted', compact('vacancies'));
+    }
+
+    public function requestVacancy(Vacancy $vacancy)
+    {
+        return view('portal.vacancies.request_vacancy', compact('vacancy'));
+    }
+
+    public function sendRequestVacancy(Vacancy $vacancy)
+    {
+
+    }
+
     public function candidates()
     {
         return view('portal.vacancies.candidates');
@@ -141,6 +176,30 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
      */
     public function destroy(Vacancy $vacancy)
     {
-        //
+        try {
+            // Guardar el nombre de la vacante antes de eliminarla
+            $vacancyName = $vacancy->name;
+
+            // Eliminar la vacante
+            $vacancy->delete();
+
+            // Crear un mensaje de éxito con el nombre de la vacante
+            session()->flash('swal', [
+                'icon' => 'success',
+                'title' => '¡Eliminado!',
+                'text' => 'La vacante ' . $vacancyName . ' se eliminó correctamente.',
+            ]);
+        } catch (\Exception $e) {
+            // Manejar cualquier error que ocurra durante la eliminación
+            session()->flash('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Hubo un problema al eliminar la vacante: ' . $e->getMessage(),
+            ]);
+        }
+
+        // Redireccionar a la lista de vacantes
+        return redirect()->route('portal.vacancies.index');
     }
+
 }

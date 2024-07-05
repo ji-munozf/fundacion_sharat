@@ -24,4 +24,9 @@ class Institution extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function vacancies()
+    {
+        return $this->hasMany(Vacancy::class);
+    }
 }

@@ -19,6 +19,10 @@ class DatabaseSeeder extends Seeder
     {
         Permission::create(['name' => 'Acceso al dashboard']);
 
+        Permission::create(['name' => 'Visualizar perfil']);
+
+        Permission::create(['name' => 'Acceder lista usuarios']);
+
         Permission::create(['name' => 'Visualizar usuarios']);
         Permission::create(['name' => 'Crear usuarios']);
         Permission::create(['name' => 'Actualizar usuarios']);
@@ -45,6 +49,8 @@ class DatabaseSeeder extends Seeder
         Permission::create(['name' => 'Crear vacantes']);
         Permission::create(['name' => 'Actualizar vacantes']);
         Permission::create(['name' => 'Eliminar vacantes']);
+        Permission::create(['name' => 'Visualizar vacantes publicadas']);
+        Permission::create(['name' => 'Solicitar vacante']);
 
         // Crear Roles
         $superAdminRole = Role::create(['name' => 'Super admin']);
@@ -57,18 +63,19 @@ class DatabaseSeeder extends Seeder
             'Visualizar roles', 'Crear roles', 'Actualizar roles', 'Eliminar roles', 'Añadir permisos',
             'Visualizar permisos', 'Crear permisos', 'Actualizar permisos', 'Eliminar permisos',
             'Visualizar instituciones', 'Crear instituciones', 'Actualizar instituciones', 'Eliminar instituciones',
-            'Visualizar vacantes', 'Crear vacantes', 'Actualizar vacantes', 'Eliminar vacantes',
+            'Visualizar vacantes', 'Crear vacantes', 'Actualizar vacantes', 'Eliminar vacantes', 'Visualizar vacantes publicadas', 'Solicitar vacante',
         ]);
 
         // Asignar permisos al rol de institución
         $institucionRole->givePermissionTo([
-            'Acceso al dashboard',
-            'Visualizar vacantes', 'Crear vacantes', 'Actualizar vacantes', 'Eliminar vacantes',
+            'Acceso al dashboard', 'Visualizar usuarios',
+            'Visualizar vacantes', 'Crear vacantes', 'Actualizar vacantes', 'Eliminar vacantes', 'Visualizar vacantes publicadas', 'Solicitar vacante',
         ]);
 
         // Crear Institutions
         Institution::create(['name' => 'Sharat']);
         Institution::create(['name' => 'Institución 1']);
+        Institution::create(['name' => 'Institución 2']);
 
         // Crear usuarios y asignarles el role 
 
@@ -116,6 +123,28 @@ class DatabaseSeeder extends Seeder
 
         $institucionUser2->assignRole($institucionRole);
 
+        $institucionUser3 = User::firstOrCreate([
+            'email' => 'test3@test.cl',
+        ], [
+            'name' => 'Test3',
+            'email' => 'test3@test.cl',
+            'password' => Hash::make('12345678'),
+            'institution_id' => 3,
+        ]);
+
+        $institucionUser3->assignRole($institucionRole);
+
+        $institucionUser4 = User::firstOrCreate([
+            'email' => 'test4@test.cl',
+        ], [
+            'name' => 'Test4',
+            'email' => 'test4@test.cl',
+            'password' => Hash::make('12345678'),
+            'institution_id' => 3,
+        ]);
+
+        $institucionUser4->assignRole($institucionRole);
+
         // Crear Vacancies
 
         Vacancy::create([
@@ -126,6 +155,7 @@ class DatabaseSeeder extends Seeder
             'number_of_vacancies' => 2,
             'active' => 1,
             'user_id' => 3,
+            'institution_id' => 2,
         ]);
 
         Vacancy::create([
@@ -136,6 +166,29 @@ class DatabaseSeeder extends Seeder
             'number_of_vacancies' => 1,
             'active' => 1,
             'user_id' => 4,
+            'institution_id' => 2,
+        ]);
+
+        Vacancy::create([
+            'name' => 'Profesor de lenguaje',
+            'job_title' => 'Profesor',
+            'description' => 'Se busca profesor de lenguaje',
+            'contracting_manager' => 'Reclutador colegio A',
+            'number_of_vacancies' => 2,
+            'active' => 1,
+            'user_id' => 5,
+            'institution_id' => 3,
+        ]);
+
+        Vacancy::create([
+            'name' => 'Profesor de matemáticas',
+            'job_title' => 'Profesor',
+            'description' => 'Se busca matemáticas',
+            'contracting_manager' => 'Reclutador colegio B',
+            'number_of_vacancies' => 1,
+            'active' => 1,
+            'user_id' => 6,
+            'institution_id' => 3,
         ]);
     }
 }

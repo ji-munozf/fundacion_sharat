@@ -3,18 +3,26 @@
 <x-portal-layout :breadcrumb="[
     [
         'name' => 'Home',
-        'url' => route('portal.dashboard')
+        'url' => route('portal.dashboard'),
     ],
     [
         'name' => 'Vacantes',
     ],
 ]">
+
     <div class="flex justify-end mb-4">
         <a href="{{ route('portal.vacancies.create') }}">
             <button type="button"
                 class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                 <i class="fa-regular fa-plus mr-1"></i>
                 Nuevo
+            </button>
+        </a>
+        <a href="{{ route('portal.vacancies.vacancies_posted') }}">
+            <button type="button"
+                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                <i class="fa-solid fa-list-ul mr-1"></i>
+                Vacantes publicadas
             </button>
         </a>
     </div>
@@ -82,34 +90,40 @@
                                 {{ $vacancy->active ? 'Sí' : 'No' }}
                             </td>
                             <td class="px-6 py-4">
-                                {{ $vacancy->user->name }}
+                                @if ($vacancy->user->hasRole('Super admin'))
+                                    Super admin: {{ $vacancy->user->name }}
+                                @elseif ($vacancy->user->hasRole('Admin'))
+                                    Admin: {{ $vacancy->user->name }}
+                                @else
+                                    {{ $vacancy->user->name }}
+                                @endif
                             </td>
                             <td class="px-6 py-4">
-                                {{ $vacancy->user->institution->name }}
+                                {{ $vacancy->institution->name }}
                             </td>
                             <td class="px-6 py-4">
                                 <a href="{{ route('portal.vacancies.edit', $vacancy) }}">
                                     <button type="button"
-                                        class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                                        class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm w-full h-12 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
                                         <i class="fa-regular fa-pen-to-square mr-1"></i>
                                         Editar
                                     </button>
                                 </a>
                                 <form action="{{ route('portal.vacancies.destroy', $vacancy) }}" method="POST"
-                                    class="inline-block" id="deleteForm{{ $vacancy->id }}">
+                                    class="inline-block w-full mb-2" id="deleteForm{{ $vacancy->id }}">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" onclick="confirmDelete({{ $vacancy->id }})"
-                                        class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
+                                        class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm w-full h-12 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
                                         <i class="fa-regular fa-trash-can mr-1"></i>
                                         Eliminar
                                     </button>
                                 </form>
                                 <a href="{{ route('portal.vacancies.candidates', $vacancy) }}">
                                     <button type="button"
-                                        class="focus:outline-none text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:ring-yellow-500 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900">
+                                        class="focus:outline-none text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:ring-yellow-500 font-medium rounded-lg text-sm w-full h-12 mb-2 dark:focus:ring-yellow-900">
                                         <i class="fa-solid fa-user mr-1"></i>
-                                        Ver candidatos
+                                        Ver postulantes
                                     </button>
                                 </a>
                             </td>
@@ -128,4 +142,26 @@
     <div class="mt-4">
         {{ $vacancies->links() }}
     </div>
+
+    @push('js')
+        <script>
+            function confirmDelete(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "No podrás revertir esta acción",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: 'green',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('deleteForm' + id).submit();
+                    }
+                })
+            }
+        </script>
+    @endpush
+
 </x-portal-layout>

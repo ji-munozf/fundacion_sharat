@@ -57,7 +57,7 @@
         '-translate-x-full': !open,
         'transforme-none': open
     }" aria-label="Sidebar">
-    <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
+    <div class="h-full px-3 pb-4 overflow-y-auto bgwhite0 dark:bg-gray-800">
         <ul class="space-y-2 font-medium">
             @foreach ($links as $link)
                 @canany($link['can'] ?? [null])

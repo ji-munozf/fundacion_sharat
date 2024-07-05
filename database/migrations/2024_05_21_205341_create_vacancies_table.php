@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('number_of_vacancies'); // Opcional: puedes usar integer o bigInteger según tus necesidades
             $table->boolean('active')->default(true);
             $table->foreignId('user_id')->constrained('users'); // Llave foránea hacia la tabla "users"
+            $table->foreignId('institution_id')->constrained('institutions'); // Llave foránea hacia la tabla "institutions"
             $table->timestamps();
         });
     }

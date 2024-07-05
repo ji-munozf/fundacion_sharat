@@ -17,6 +17,9 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+    <!-- Flowbite head CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+
     <!-- Font Awesome -->
     <script src="https://kit.fontawesome.com/7e322a92f1.js" crossorigin="anonymous"></script>
 
@@ -32,7 +35,7 @@
     @stack('css')
 </head>
 
-<body class="font-sans antialiased bg-white dark:bg-gray-900 dark:border-gray-800" x-data="{
+<body class="font-sans antialiased bg-gray-100 dark:bg-gray-900 dark:border-gray-800" x-data="{
     open: false,
 }">
 
@@ -44,7 +47,7 @@
 
         @include('layouts.includes.portal.breadcrumb')
 
-        <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-500 mt-14 dark:text-white">
+        <div class="p-4 border-2 border-gray-300 border-dashed rounded-lg dark:border-gray-500 mt-14 dark:text-white">
 
             {{ $slot }}
 
@@ -62,6 +65,9 @@
     @endif
 
     @stack('js')
+
+    <!-- Flowite js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
 
 </body>
 
