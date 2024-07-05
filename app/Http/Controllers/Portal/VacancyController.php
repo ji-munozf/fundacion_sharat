@@ -41,20 +41,31 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
 
         // Obtener todas las vacantes
         if ($user->hasRole(['Super admin', 'Admin'])) {
-            // Mostrar todas las vacantes sin importar la institución
-            $vacancies = Vacancy::with('institution')->paginate();
+            // Mostrar todas las vacantes sin importar la institución, pero filtrando por is_eliminated = 0
+            $vacancies = Vacancy::with('institution')
+                ->where('is_eliminated', 0)
+                ->paginate();
         } else {
             // Obtener la institución del usuario autenticado
             $institutionId = $user->institution_id;
 
-            // Filtrar las vacantes por la institución del usuario
-            $vacancies = Vacancy::where('institution_id', $institutionId)->with('institution')->paginate();
+            // Filtrar las vacantes por la institución del usuario y is_eliminated = 0
+            $vacancies = Vacancy::where('institution_id', $institutionId)
+                ->where('is_eliminated', 0)
+                ->with('institution')
+                ->paginate();
         }
 
-        // Calcular el número de nuevas postulaciones para cada vacante
+        // Calcular el número de nuevas postulaciones y postulaciones pendientes para cada vacante
         foreach ($vacancies as $vacancy) {
             $newApplicationsCount = Postulation::where('vacancy_id', $vacancy->id)->count();
             $vacancy->newApplicationsCount = $newApplicationsCount;
+
+            $pendingApplicationsCount = Postulation::where('vacancy_id', $vacancy->id)
+                ->leftJoin('postulation_status', 'postulations.id', '=', 'postulation_status.postulation_id')
+                ->whereNull('postulation_status.status')
+                ->count();
+            $vacancy->pendingApplicationsCount = $pendingApplicationsCount;
         }
 
         return view('portal.vacancies.index', compact('vacancies'));
@@ -176,20 +187,26 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
      */
     public function candidates(Vacancy $vacancy)
     {
-        $postulations = DB::table('postulations')
+        $query = DB::table('postulations')
             ->leftJoin('postulation_status', 'postulations.id', '=', 'postulation_status.postulation_id')
             ->join('vacancies', 'postulations.vacancy_id', '=', 'vacancies.id')
             ->join('users', 'postulations.user_id', '=', 'users.id')
             ->select(
                 'postulations.*',
                 'vacancies.name as vacancy_name',
-                'vacancies.number_of_vacancies', // Aseguramos que este campo sea parte de la selección
+                'vacancies.number_of_vacancies',
+                'vacancies.is_eliminated_postulant',
                 'users.name as user_name',
                 'postulation_status.status as postulation_status',
                 'postulation_status.reasons as postulation_reasons'
             )
-            ->where('postulations.vacancy_id', $vacancy->id)
-            ->get();
+            ->where('postulations.vacancy_id', $vacancy->id);
+
+        if (!auth()->user()->hasRole('Super admin') && !auth()->user()->hasRole('Admin')) {
+            $query->where('vacancies.is_eliminated_postulant', false);
+        }
+
+        $postulations = $query->get();
 
         return view('portal.vacancies.candidates', [
             'postulations' => $postulations,
@@ -338,6 +355,9 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
         return redirect()->route('portal.vacancies.candidates', $postulation->vacancy_id);
     }
 
+    /**
+     * Cancelar la elección de la postulación
+     */
     public function cancelPostulation($id)
     {
         $postulation = Postulation::findOrFail($id);
@@ -371,34 +391,109 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
     }
 
     /**
+     * Verificar si el usuario postulante elimino su postulación
+     */
+    public function checkPostulationEliminated($id)
+    {
+        $postulation = Postulation::with('vacancy')->findOrFail($id);
+        return response()->json([
+            'is_eliminated' => $postulation->is_eliminated,
+            'vacancy_name' => $postulation->vacancy->name,
+        ]);
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(Vacancy $vacancy)
     {
-        try {
-            // Guardar el nombre de la vacante antes de eliminarla
-            $vacancyName = $vacancy->name;
+        DB::beginTransaction();
 
-            // Eliminar la vacante
-            $vacancy->delete();
+        try {
+            // Obtener postulaciones pendientes
+            $pendingPostulations = DB::table('postulations')
+                ->leftJoin('postulation_status', 'postulations.id', '=', 'postulation_status.postulation_id')
+                ->where('postulations.vacancy_id', $vacancy->id)
+                ->whereNull('postulation_status.status')
+                ->select('postulations.id')
+                ->get();
+
+            // Actualizar el estado de las postulaciones pendientes
+            foreach ($pendingPostulations as $postulation) {
+                DB::table('postulation_status')->updateOrInsert(
+                    ['postulation_id' => $postulation->id],
+                    [
+                        'status' => 0,
+                        'reasons' => 'La institución ha decidido eliminar la vacante a la cual usted se postuló',
+                    ]
+                );
+            }
+
+            // Actualizar la vacante para marcarla como eliminada
+            $vacancy->is_eliminated = 1;
+            $vacancy->active = 0;
+            $vacancy->save();
+
+            DB::commit();
 
             // Crear un mensaje de éxito con el nombre de la vacante
             session()->flash('swal', [
                 'icon' => 'success',
                 'title' => '¡Eliminado!',
-                'text' => 'La vacante ' . $vacancyName . ' se eliminó correctamente.',
+                'text' => 'La vacante ' . $vacancy->name . ' se eliminó correctamente.',
             ]);
         } catch (\Exception $e) {
-            // Manejar cualquier error que ocurra durante la eliminación
+            DB::rollBack();
+
+            // Manejar cualquier error que ocurra durante la actualización
             session()->flash('swal', [
                 'icon' => 'error',
                 'title' => 'Error',
-                'text' => 'Hubo un problema al eliminar la vacante: ' . $e->getMessage(),
+                'text' => 'Hubo un problema al eliminar la vacante: ' . $vacancy->name . '. ' . $e->getMessage(),
             ]);
         }
 
         // Redireccionar a la lista de vacantes
         return redirect()->route('portal.vacancies.index');
+    }
+
+    /**
+     * "Eliminar" al postulante del listado de postulaciones de la vacante.
+     */
+    public function destroyPostulante($id)
+    {
+        $postulation = Postulation::findOrFail($id);
+        $vacancy = $postulation->vacancy;
+
+        $vacancy->is_eliminated_postulant = true;
+        $vacancy->save();
+
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => '¡Bien hecho!',
+            'text' => 'El postulante se eliminó correctamente',
+        ]);
+
+        return redirect()->route('portal.vacancies.candidates', $vacancy->id);
+    }
+
+    /**
+     * Revertir "eliminar" al postulante del listado de postulaciones de la vacante.
+     */
+    public function revertirDestroyPostulante(Vacancy $vacancy)
+    {
+        // Cambiar el campo is_eliminated_postulant a false
+        $vacancy->is_eliminated_postulant = false;
+        $vacancy->save();
+
+        // Mensaje de éxito
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => '¡Bien hecho!',
+            'text' => 'Se revirtió la eliminación del postulante',
+        ]);
+
+        return redirect()->route('portal.vacancies.candidates', $vacancy->id);
     }
 
 }

@@ -362,7 +362,7 @@ class UserController extends Controller implements \Illuminate\Routing\Controlle
         return view('portal.users.makePremiumView', compact('user'));
     }
 
-    public function makePremium(User $user, Request $request)
+    public function makePremium(Request $request, User $user)
     {
         // Validar los datos del formulario
         $request->validate([
@@ -374,8 +374,8 @@ class UserController extends Controller implements \Illuminate\Routing\Controlle
         // Establecer la zona horaria de Carbon a "America/Santiago"
         Carbon::setLocale('es');
         $timeZone = 'America/Santiago';
-        $startDate = Carbon::now($timeZone);
-        $endDate = $request->input('duration') == '1' ? $startDate->copy()->addMonth() : $startDate->copy()->addYear();
+        $startDate = Carbon::now($timeZone)->second(0);
+        $endDate = $request->input('duration') == '1' ? $startDate->copy()->addMonth()->second(0) : $startDate->copy()->addYear()->second(0);
 
         // Manejar el archivo subido
         if ($request->hasFile('file_input')) {
@@ -404,8 +404,8 @@ class UserController extends Controller implements \Illuminate\Routing\Controlle
             'bank_transfer_snapshot' => $filePath, // Guardar la ruta del archivo
             'start_date' => $startDate,
             'end_date' => $endDate,
-            'created_at' => Carbon::now($timeZone),
-            'updated_at' => Carbon::now($timeZone),
+            'created_at' => Carbon::now($timeZone)->second(0),
+            'updated_at' => Carbon::now($timeZone)->second(0),
         ]);
 
         // Actualizar el plan del usuario a Premium (id = 2)

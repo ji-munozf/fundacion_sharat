@@ -50,6 +50,6 @@ class CheckSubscriptions extends Command
                 ->update(['plan_id' => 1]);
         }
 
-        $this->info('Expired subscriptions have been checked and updated.');
+        $this->info('Se han comprobado y actualizado las suscripciones caducadas.');
     }
 }

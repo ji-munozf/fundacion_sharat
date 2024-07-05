@@ -120,7 +120,7 @@
                             </button>
                         @else
                             <a class="bg-emerald-500 text-white hover:bg-emerald-600 mt-8 w-full py-3 px-6 border border-transparent rounded-md text-center font-medium flex items-center justify-center"
-                                href="#">
+                                href="https://api.whatsapp.com/send?phone=965791980" target="_blank">
                                 <i class="fa-brands fa-whatsapp mr-2 text-xl"></i>
                                 Contáctanos
                             </a>

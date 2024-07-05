@@ -184,48 +184,4 @@ class PremiumBenefitController extends Controller implements \Illuminate\Routing
         return redirect()->route('portal.premium_benefits.postulation_data');
     }
 
-    // public function destroyPostulationData()
-    // {
-    //     $user = auth()->user();
-    //     $postulationData = PostulationUserData::where('user_id', $user->id)->firstOrFail();
-
-    //     // Verificar si el usuario tiene alguna postulación pendiente
-    //     $pendingPostulation = Postulation::where('user_id', $user->id)
-    //         ->whereHas('status', function ($query) {
-    //             $query->whereNull('status');
-    //         })
-    //         ->exists();
-
-    //     if ($pendingPostulation) {
-    //         // Crear el mensaje de error
-    //         session()->flash('swal', [
-    //             'icon' => 'error',
-    //             'title' => 'Operación no permitida',
-    //             'text' => 'No puede eliminar sus datos de postulación mientras tenga postulaciones en estado pendiente.',
-    //         ]);
-
-    //         // Redirigir al usuario a la página principal
-    //         return redirect()->route('portal.premium_benefits.postulation_data');
-    //     }
-
-    //     // Verificar si la aplicación tiene un archivo de currículum vitae
-    //     if ($postulationData->curriculum_vitae) {
-    //         // Eliminar el archivo del sistema de archivos
-    //         Storage::disk('public')->delete($postulationData->curriculum_vitae);
-    //     }
-
-    //     // Eliminar la aplicación de la base de datos
-    //     $postulationData->delete();
-
-    //     // Crear el mensaje de éxito con el nombre de la vacante
-    //     session()->flash('swal', [
-    //         'icon' => 'success',
-    //         'title' => '¡Bien hecho!',
-    //         'text' => 'Los datos de postulación se eliminaron correctamente',
-    //     ]);
-
-    //     // Redirigir al usuario a la página principal
-    //     return redirect()->route('portal.premium_benefits.postulation_data');
-    // }
-
 }

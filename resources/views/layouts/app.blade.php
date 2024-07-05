@@ -22,7 +22,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
 
     <!-- Font Awesome -->
-    <script src="https://kit.fontawesome.com/7e322a92f1.js" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/6c0cf5d508.js" crossorigin="anonymous"></script>
 
     <!-- Sweet alert 2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -37,7 +37,7 @@
 <body class="font-sans antialiased ">
     <x-banner />
 
-    <div class="min-h-screen bg-gray-200 dark:bg-gray-900">
+    <div class="min-h-screen bg-gray-200 dark:bg-gray-900 pt-16">
         @livewire('navigation-menu')
 
         <!-- Page Content -->

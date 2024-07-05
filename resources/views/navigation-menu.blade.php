@@ -1,14 +1,15 @@
-<nav class="bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+<nav class="fixed w-full top-0 bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700 z-50">
     <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <a href="{{ route('home') }}" class="flex items-center space-x-3 rtl:space-x-reverse">
             <picture>
                 <!-- Imagen para modo oscuro -->
                 <source srcset="{{ asset('favicon_dark.png') }}" media="(prefers-color-scheme: dark)">
                 <!-- Imagen por defecto para modo claro -->
-                <img src="{{ asset('favicon_light.png') }}" class="h-12" alt="Logo de Fundación Sharat" /> <!-- Ajusta la clase aquí -->
+                <img src="{{ asset('favicon_light.png') }}" class="h-12" alt="Logo de Fundación Sharat" />
             </picture>
-            <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Fundación Sharat</span>
-        </a>        
+            <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white hidden md:block">Fundación
+                Sharat</span>
+        </a>
         <button data-collapse-toggle="navbar-solid-bg" type="button"
             class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
             aria-controls="navbar-solid-bg" aria-expanded="false">
@@ -21,7 +22,7 @@
         </button>
         <div class="hidden w-full md:block md:w-auto" id="navbar-solid-bg">
             <ul
-                class="flex flex-col font-medium mt-4 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-transparent dark:bg-gray-800 md:dark:bg-transparent dark:border-gray-700">
+                class="flex flex-col font-medium mt-4 text-base rounded-lg bg-gray-50 md:space-x-4 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-transparent dark:bg-gray-800 md:dark:bg-transparent dark:border-gray-700">
                 <li>
                     <a href="{{ route('home') }}"
                         class="{{ Request::is('/') ? 'text-blue-700 dark:text-blue-500' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 md:hover:text-blue-700 md:dark:hover:text-blue-500 md:dark:hover:bg-transparent' }} block py-2 px-3 md:p-0 rounded md:bg-transparent"
@@ -29,12 +30,24 @@
                         Inicio
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('portal_recruitment') }}"
+                        class="{{ Request::is('portal_recruitment') ? 'text-blue-700 dark:text-blue-500' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 md:hover:text-blue-700 md:dark:hover:text-blue-500 md:dark:hover:bg-transparent' }} block py-2 px-3 md:p-0 rounded md:bg-transparent"
+                        aria-current="page">
+                        Portal Recruitment
+                    </a>
+                </li>
                 @if (Route::has('login'))
                     @auth
                         <li>
+                            <span class="text-gray-900 dark:text-white block py-2 px-3 md:p-0 rounded md:bg-transparent">
+                                Hola, {{ Auth::user()->name }}
+                            </span>
+                        </li>
+                        <li>
                             <a href="{{ route('portal.dashboard') }}"
                                 class="{{ Request::is('dashboard') ? 'text-blue-700 dark:text-blue-500' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 md:hover:text-blue-700 md:dark:hover:text-blue-500 md:dark:hover:bg-transparent' }} block py-2 px-3 md:p-0 rounded md:bg-transparent">
-                                Portal Recruitment
+                                Ir al portal recruitment
                             </a>
                         </li>
                         <li>

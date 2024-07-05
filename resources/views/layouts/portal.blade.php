@@ -26,7 +26,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
 
     <!-- Font Awesome -->
-    <script src="https://kit.fontawesome.com/7e322a92f1.js" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/6c0cf5d508.js" crossorigin="anonymous"></script>
 
     <!-- Sweet alert 2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -73,6 +73,9 @@
 
     <!-- Flowite js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 </body>
 

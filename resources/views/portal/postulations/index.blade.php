@@ -22,6 +22,8 @@
                         <th scope="col" class="px-6 py-3">Descripción</th>
                         <th scope="col" class="px-6 py-3">Gerente de contrataciones</th>
                         <th scope="col" class="px-6 py-3">Número de vacantes</th>
+                        <th scope="col" class="px-6 py-3">Sueldo bruto</th>
+                        <th scope="col" class="px-6 py-3">Activo</th>
                         <th scope="col" class="px-6 py-3">Institución</th>
                         <th scope="col" class="px-6 py-3">Estado</th>
                         <th scope="col" class="px-6 py-3">Acciones</th>
@@ -56,6 +58,12 @@
                                 @else
                                     {{ $vacancy->number_of_vacancies }}
                                 @endif
+                            </td>
+                            <td class="px-6 py-4">
+                                ${{ number_format($vacancy->gross_salary, 0, ',', '.') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {{ $vacancy->active ? 'Sí' : 'No' }}
                             </td>
                             <td class="px-6 py-4">{{ $vacancy->user->institution->name }}</td>
                             <td class="px-6 py-4">
@@ -95,13 +103,12 @@
                                             </button>
                                         </a>
                                         <form
-                                            action="{{ route('portal.postulations.destroy', $postulations[$vacancy->id]->id) }}"
+                                            action="{{ route('portal.postulations.cancel', $postulations[$vacancy->id]->id) }}"
                                             method="POST" class="inline-block w-full"
                                             id="deleteForm{{ $postulations[$vacancy->id]->id }}">
                                             @csrf
-                                            @method('DELETE')
                                             <button type="button"
-                                                onclick="confirmDelete({{ $postulations[$vacancy->id]->id }})"
+                                                onclick="confirmCancel({{ $postulations[$vacancy->id]->id }})"
                                                 class="w-32 px-5 py-3 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
                                                 <i class="fa-solid fa-ban mr-1"></i>
                                                 Cancelar
@@ -116,13 +123,19 @@
                                                 Visualizar razones
                                             </button>
                                         </a>
-                                        <a href="#">
+                                        <form
+                                            action="{{ route('portal.postulations.destroy', $postulations[$vacancy->id]->id) }}"
+                                            method="POST" class="inline-block w-full"
+                                            id="deleteForm{{ $postulations[$vacancy->id]->id }}">
+                                            @csrf
+                                            @method('DELETE')
                                             <button type="button"
+                                                onclick="confirmDelete({{ $postulations[$vacancy->id]->id }})"
                                                 class="w-32 px-5 py-3 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
                                                 <i class="fa-solid fa-trash-can mr-1"></i>
                                                 Eliminar
                                             </button>
-                                        </a>
+                                        </form>
                                     @endif
                                 @else
                                     @if ($hasUnlimitedApplications || $currentMonthApplications < 2)
@@ -287,15 +300,32 @@
                     });
             }
 
-            function confirmDelete(id) {
+            function confirmCancel(id) {
                 Swal.fire({
                     title: '¿Estás seguro?',
-                    text: "Se eliminará su postulación",
+                    text: "Se cancelará su postulación",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: 'green',
                     cancelButtonColor: '#d33',
                     confirmButtonText: 'Sí, cancelar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('deleteForm' + id).submit();
+                    }
+                })
+            }
+
+            function confirmDelete(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Se eliminará la vacante postulada",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: 'green',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, eliminar',
                     cancelButtonText: 'Cancelar'
                 }).then((result) => {
                     if (result.isConfirmed) {

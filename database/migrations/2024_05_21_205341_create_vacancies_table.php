@@ -17,11 +17,11 @@ return new class extends Migration
             $table->string('job_title');
             $table->text('description');
             $table->string('contracting_manager');
-            $table->integer('number_of_vacancies'); // Opcional: puedes usar integer o bigInteger según tus necesidades
+            $table->integer('number_of_vacancies');
             $table->integer('gross_salary');
             $table->boolean('active')->default(true);
-            $table->foreignId('user_id')->constrained('users'); // Llave foránea hacia la tabla "users"
-            $table->foreignId('institution_id')->constrained('institutions'); // Llave foránea hacia la tabla "institutions"
+            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('institution_id')->constrained('institutions');
             $table->timestamps();
         });
     }

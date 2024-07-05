@@ -61,6 +61,7 @@ class DatabaseSeeder extends Seeder
         Permission::create(['name' => 'Crear postulación']);
         Permission::create(['name' => 'Editar postulación']);
         Permission::create(['name' => 'Cancelar postulación']);
+        Permission::create(['name' => 'Eliminar postulación']);
 
         Permission::create(['name' => 'Visualizar planes']);
 
@@ -69,13 +70,44 @@ class DatabaseSeeder extends Seeder
         Permission::create(['name' => 'Editar datos de postulación']);
         Permission::create(['name' => 'Eliminar datos de postulación']);
 
-        Permission::create(['name' => 'Visualizar suscripciones']);
+        Permission::create(['name' => 'Visualizar reportes']);
+        Permission::create(['name' => 'Visualizar historial suscripciones']);
+        Permission::create(['name' => 'Visualizar historial vacantes']);
+        Permission::create(['name' => 'Visualizar historial postulaciones']);
+        Permission::create(['name' => 'Visualizar historial datos de postulación']);
+
+        Permission::create(['name' => 'Exportar vacantes a excel']);
+        Permission::create(['name' => 'Exportar postulaciones a excel']);
+        Permission::create(['name' => 'Exportar suscripciones a excel']);
+        Permission::create(['name' => 'Exportar datos de postulación a excel']);
+
+        Permission::create(['name' => 'Revertir eliminar vacante']);
+        Permission::create(['name' => 'Revertir eliminar postulación']);
+
+        Permission::create(['name' => 'Eliminar los datos de postulación del usuario']);
+        Permission::create(['name' => 'Eliminar todas las vacantes']);
+        Permission::create(['name' => 'Eliminar todas las postulaciones']);
+        Permission::create(['name' => 'Eliminar todas las suscripciones']);
+        Permission::create(['name' => 'Eliminar todos los datos de postulación']);
 
         // Crear Roles
         $superAdminRole = Role::create(['name' => 'Super admin']);
         $adminRole = Role::create(['name' => 'Admin']);
         $institucionRole = Role::create(['name' => 'Institución']);
         $postulanteRole = Role::create(['name' => 'Postulante']);
+
+        // Crear Planes
+        Plan::create([
+            'name' => 'Gratuito',
+            'monthly_price' => 0,
+            'yearly_price' => 0,
+        ]);
+
+        Plan::create([
+            'name' => 'Premium',
+            'monthly_price' => 2500,
+            'yearly_price' => 30000,
+        ]);
 
         // Asignar permisos al rol de institución
         $adminRole->givePermissionTo([
@@ -86,7 +118,10 @@ class DatabaseSeeder extends Seeder
             'Visualizar permisos', 'Crear permisos', 'Actualizar permisos', 'Eliminar permisos',
             'Visualizar instituciones', 'Crear instituciones', 'Actualizar instituciones',
             'Visualizar vacantes', 'Crear vacantes', 'Actualizar vacantes', 'Eliminar vacantes',
-            'Visualizar suscripciones'
+            'Visualizar reportes', 'Visualizar historial suscripciones', 'Visualizar historial vacantes', 'Visualizar historial postulaciones', 'Visualizar historial datos de postulación',
+            'Exportar vacantes a excel', 'Exportar postulaciones a excel', 'Exportar suscripciones a excel', 'Exportar datos de postulación a excel',
+            'Revertir eliminar vacante', 'Revertir eliminar postulación', 'Eliminar los datos de postulación del usuario',
+            'Eliminar todas las vacantes', 'Eliminar todas las postulaciones', 'Eliminar todas las suscripciones', 'Cancelar postulación', 'Eliminar todos los datos de postulación',
         ]);
 
         // Asignar permisos al rol de institución
@@ -94,14 +129,14 @@ class DatabaseSeeder extends Seeder
             'Acceso al dashboard', 'Visualizar usuarios',
             'Visualizar vacantes', 'Crear vacantes', 'Actualizar vacantes', 'Eliminar vacantes',
             'Visualizar postulantes', 'Descargar CV', 'Visualizar botón aceptar', 'Visualizar botón rechazar',
-            'Actualizar razones', 'Cancelar elección', 
+            'Actualizar razones', 'Cancelar elección',
         ]);
 
         // Asignar permisos al rol de postulante
         $postulanteRole->givePermissionTo([
             'Acceso al dashboard',
             'Visualizar postulación', 'Crear postulación', 'Editar postulación', 'Cancelar postulación',
-            'Visualizar planes', 'Acceder a datos de postulación', 'Guardar datos de postulación', 'Editar datos de postulación', 'Eliminar datos de postulación'
+            'Visualizar planes', 'Acceder a datos de postulación', 'Guardar datos de postulación', 'Editar datos de postulación', 'Eliminar datos de postulación',
         ]);
 
         // Crear Institutions
@@ -109,8 +144,7 @@ class DatabaseSeeder extends Seeder
         Institution::create(['name' => 'Institución 1']);
         Institution::create(['name' => 'Institución 2']);
 
-        // Crear usuarios y asignarles el role 
-
+        // Crear usuarios y asignarles el role
         $superAdminUser = User::firstOrCreate([
             'rut' => '11675997-7',
             'email' => 'soporte@fundacionsharat.cl',
@@ -138,6 +172,7 @@ class DatabaseSeeder extends Seeder
         $adminUser->assignRole($adminRole);
 
         $institucionUser1 = User::firstOrCreate([
+            'rut' => '13197256-3',
             'email' => 'test@test.cl',
         ], [
             'rut' => '13197256-3',
@@ -188,15 +223,42 @@ class DatabaseSeeder extends Seeder
 
         $institucionUser4->assignRole($institucionRole);
 
-        // Crear Vacancies
+        $postulanteUser1 = User::firstOrCreate([
+            'rut' => '22815889-5',
+            'email' => 'ji.munozf.1999@gmail.com',
+        ], [
+            'rut' => '22815889-5',
+            'name' => 'Juan Ignacio',
+            'email' => 'ji.munozf.1999@gmail.com',
+            'password' => Hash::make('JuanIgnacio1'),
+            'institution_id' => null,
+            'plan_id' => 1,
+        ]);
 
+        $postulanteUser1->assignRole($postulanteRole);
+
+        $postulanteUser2 = User::firstOrCreate([
+            'rut' => '21384504-7',
+            'email' => 'eli.cornejo@test.cl',
+        ], [
+            'rut' => '21384504-7',
+            'name' => 'Elisa Cornejo',
+            'email' => 'eli.cornejo@test.cl',
+            'password' => Hash::make('12345678'),
+            'institution_id' => null,
+            'plan_id' => 1,
+        ]);
+
+        $postulanteUser2->assignRole($postulanteRole);
+
+        // Crear Vacancies
         Vacancy::create([
             'name' => 'Profesor de historia',
             'job_title' => 'Profesor',
             'description' => 'Se busca profesor de historia y geografía',
             'contracting_manager' => 'Reclutador colegio X',
             'number_of_vacancies' => 2,
-            'gross_salary'=> 777777,
+            'gross_salary' => 777777,
             'active' => 1,
             'user_id' => 3,
             'institution_id' => 2,
@@ -208,7 +270,7 @@ class DatabaseSeeder extends Seeder
             'description' => 'Se busca matemáticas y debe ser cristiano',
             'contracting_manager' => 'Reclutador colegio Y',
             'number_of_vacancies' => 1,
-            'gross_salary'=> 777777,
+            'gross_salary' => 777777,
             'active' => 1,
             'user_id' => 4,
             'institution_id' => 2,
@@ -220,7 +282,7 @@ class DatabaseSeeder extends Seeder
             'description' => 'Se busca profesor de lenguaje',
             'contracting_manager' => 'Reclutador colegio A',
             'number_of_vacancies' => 2,
-            'gross_salary'=> 777777,
+            'gross_salary' => 777777,
             'active' => 1,
             'user_id' => 5,
             'institution_id' => 3,
@@ -232,22 +294,11 @@ class DatabaseSeeder extends Seeder
             'description' => 'Se busca matemáticas',
             'contracting_manager' => 'Reclutador colegio B',
             'number_of_vacancies' => 1,
-            'gross_salary'=> 777777,
+            'gross_salary' => 777777,
             'active' => 1,
             'user_id' => 6,
             'institution_id' => 3,
         ]);
 
-        Plan::create([
-            'name' => 'Gratuito',
-            'monthly_price' => 0,
-            'yearly_price' => 0
-        ]);
-
-        Plan::create([
-            'name' => 'Premium',
-            'monthly_price' => 2500,
-            'yearly_price' => 30000
-        ]);
     }
 }

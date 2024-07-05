@@ -28,6 +28,9 @@
                         <th scope="col" class="px-6 py-3">Razones</th>
                         <th scope="col" class="px-6 py-3">Vacante</th>
                         <th scope="col" class="px-6 py-3">Estado</th>
+                        @if (auth()->user()->hasRole('Super admin') || auth()->user()->hasRole('Admin'))
+                            <th scope="col" class="px-6 py-3">¿Está eliminado?</th>
+                        @endif
                         <th scope="col" class="px-6 py-3">Acciones</th>
                     </tr>
                 </thead>
@@ -62,40 +65,67 @@
                                     Rechazado
                                 @endif
                             </td>
+                            @if (auth()->user()->hasRole('Super admin') || auth()->user()->hasRole('Admin'))
+                                <td class="px-6 py-4">
+                                    {{ $postulation->is_eliminated_postulant ? 'Sí' : 'No' }}
+                                </td>
+                            @endif
                             <td class="px-6 py-4">
-                                @if (is_null($postulation->postulation_status))
-                                    <a href="{{ route('postulation.showAcceptForm', $postulation->id) }}">
+                                @if (auth()->user()->hasRole('Super admin') || auth()->user()->hasRole('Admin'))
+                                    <form id="revert-form-{{ $vacancy->id }}"
+                                        action="{{ route('postulation.revertDestroy', $vacancy->id) }}" method="POST">
+                                        @csrf
                                         <button type="button"
-                                            @if ($vacancy->number_of_vacancies == 0) class="w-32 px-5 py-3 mb-2 text-sm font-medium text-center text-white rounded-lg focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800
-                                                bg-green-800 dark:bg-green-700 cursor-not-allowed"
-                                            @else 
-                                                class="w-32 px-5 py-3 mb-2 text-sm font-medium text-center text-white rounded-lg focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800
-                                                bg-green-700 hover:bg-green-800 dark:bg-green-600 dark:hover:bg-green-700" @endif
-                                            @if ($vacancy->number_of_vacancies == 0) disabled @endif>
-                                            <i class="fa-solid fa-check mr-1"></i>
-                                            Aceptar
+                                            @if ($vacancy->is_eliminated_postulant == 0) class="px-3 py-2 text-sm font-medium text-center text-white bg-gray-500 rounded-lg dark:bg-gray-400 cursor-not-allowed"
+                                            disabled
+                                        @else
+                                            class="px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+                                            onclick="confirmRevert({{ $vacancy->id }})" @endif>
+                                            <i class="fa-solid fa-rotate-left mr-1"></i>
+                                            Revertir eliminar postulante
                                         </button>
-                                    </a>
-                                    <a href="{{ route('postulation.showRejectForm', $postulation->id) }}">
-                                        <button type="button"
-                                            class="w-32 px-5 py-3 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
-                                            <i class="fa-solid fa-x mr-1"></i> Rechazar
-                                        </button>
-                                    </a>
+                                    </form>
                                 @else
-                                    <a href="{{ route('postulation.editReasonsForm', $postulation->id) }}">
+                                    @if (is_null($postulation->postulation_status))
+                                        <a href="{{ route('postulation.showAcceptForm', $postulation->id) }}">
+                                            <button type="button"
+                                                @if ($vacancy->number_of_vacancies == 0) class="w-32 px-5 py-3 mb-2 text-sm font-medium text-center text-white rounded-lg focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800
+                                                    bg-green-800 dark:bg-green-700 cursor-not-allowed"
+                                                @else 
+                                                    class="w-32 px-5 py-3 mb-2 text-sm font-medium text-center text-white rounded-lg focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800
+                                                    bg-green-700 hover:bg-green-800 dark:bg-green-600 dark:hover:bg-green-700" @endif
+                                                @if ($vacancy->number_of_vacancies == 0) disabled @endif>
+                                                <i class="fa-solid fa-check mr-1"></i>
+                                                Aceptar
+                                            </button>
+                                        </a>
+                                        <a href="{{ route('postulation.showRejectForm', $postulation->id) }}">
+                                            <button type="button"
+                                                class="w-32 px-5 py-3 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                                                <i class="fa-solid fa-x mr-1"></i> Rechazar
+                                            </button>
+                                        </a>
+                                    @else
+                                        <a href="{{ route('postulation.editReasonsForm', $postulation->id) }}">
+                                            <button type="button"
+                                                class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm w-full h-12 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                                                <i class="fa-solid fa-edit mr-1"></i>
+                                                Editar Razón
+                                            </button>
+                                        </a>
                                         <button type="button"
-                                            class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm w-full h-12 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
-                                            <i class="fa-solid fa-edit mr-1"></i>
-                                            Editar Razón
+                                            class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm w-full h-12 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+                                            onclick="confirmDelete({{ $postulation->id }})">
+                                            <i class="fa-solid fa-trash-can mr-1"></i>
+                                            Eliminar postulante
                                         </button>
-                                    </a>
-                                    <button type="button"
-                                        class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm w-full h-12 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
-                                        onclick="confirmCancel({{ $postulation->id }})">
-                                        <i class="fa-solid fa-ban mr-1"></i>
-                                        Revertir elección
-                                    </button>
+                                        <button type="button"
+                                            class="focus:outline-none text-white bg-red-800 hover:bg-red-900 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm w-full h-12 dark:bg-red-700 dark:hover:bg-red-800 dark:focus:ring-red-900"
+                                            onclick="confirmCancel({{ $postulation->id }})">
+                                            <i class="fa-solid fa-ban mr-1"></i>
+                                            Revertir elección
+                                        </button>
+                                    @endif
                                 @endif
                             </td>
                         </tr>
@@ -124,11 +154,56 @@
                     cancelButtonText: 'No, mantener'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = `/postulation/cancel/${postulationId}`;
+                        fetch(`/postulation/check-eliminated/${postulationId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.is_eliminated) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: `No se puede revertir la elección debido a que el usuario eliminó su postulación asociada a la vacante ${data.vacancy_name.toLowerCase()}.`,
+                                    });
+                                } else {
+                                    window.location.href = `/postulation/cancel/${postulationId}`;
+                                }
+                            });
+                    }
+                });
+            }
+
+            function confirmDelete(postulationId) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "¡No podrás revertir esta acción!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: 'green',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'No, cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `/postulation/destroy/${postulationId}`;
+                    }
+                })
+            }
+
+            function confirmRevert(vacancyId) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "¡No podrás revertir esta acción!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: 'green',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, revertir',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('revert-form-' + vacancyId).submit();
                     }
                 })
             }
         </script>
     @endpush
-
 </x-portal-layout>

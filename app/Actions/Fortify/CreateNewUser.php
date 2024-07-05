@@ -37,6 +37,12 @@ class CreateNewUser implements CreatesNewUsers
                     if (strpos($value, '-') === false) {
                         return $fail('El ' . $attribute . ' debe contener un guion antes del dígito verificador.');
                     }
+
+                    // Verifica si el RUT es de una empresa
+                    $rutNum = intval(explode('-', $value)[0]);
+                    if ($rutNum >= 50000000) { // Ajusta este valor según tu criterio
+                        return $fail('No se permite el ingreso de RUT de empresa.');
+                    }
                 } catch (\Exception $e) {
                     return $fail('El ' . $attribute . ' no es válido.');
                 }

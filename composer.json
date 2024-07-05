@@ -6,15 +6,17 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "box/spout": "^3.3",
         "guzzlehttp/guzzle": "^7.8",
         "laravel/framework": "^11.0",
         "laravel/jetstream": "^5.1",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.0",
+        "maatwebsite/excel": "^3.1",
         "malahierba-lab/chile-rut": "^5.1",
+        "mercadopago/dx-php": "^3.0",
         "propaganistas/laravel-phone": "^5.3",
+        "psr/simple-cache": "2.0",
         "spatie/laravel-permission": "^6.7"
     },
     "require-dev": {

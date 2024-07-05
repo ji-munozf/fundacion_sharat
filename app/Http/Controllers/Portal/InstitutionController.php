@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
-
 use App\Models\Institution;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
@@ -105,7 +104,25 @@ class InstitutionController extends Controller implements \Illuminate\Routing\Co
         session()->flash('swal', [
             'icon' => 'success',
             'title' => '¡Bien hecho!',
-            'text' => 'El usuario ' . $institution->name . '  se eliminó correctamente',
+            'text' => 'La institución ' . $institution->name . '  se eliminó correctamente',
+        ]);
+
+        return redirect()->route('portal.institutions.index');
+    }
+
+    /**
+     * Cambiar el valor del is_active de la tabla Institution
+     */
+    public function changeIsActive(Request $request)
+    {
+        $institution = Institution::findOrFail($request->id);
+        $institution->is_active = !$institution->is_active;
+        $institution->save();
+
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => '¡Bien hecho!',
+            'text' => 'El estado de la institución ' . $institution->name . '  ha sido actualizado',
         ]);
 
         return redirect()->route('portal.institutions.index');

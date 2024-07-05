@@ -22,6 +22,7 @@ class Postulation extends Model
         'curriculum_vitae',
         'strengths',
         'reasons',
+        'is_eliminated',
         'vacancy_id',
         'user_id',
     ];

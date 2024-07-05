@@ -71,11 +71,11 @@
             'can' => ['Visualizar postulación'],
         ],
         [
-            'name' => 'Historial de suscripciones',
-            'url' => route('portal.subscriptions.index'),
-            'active' => request()->routeIs('portal.subscriptions.*'),
-            'icon' => 'fa-solid fa-layer-group',
-            'can' => ['Visualizar suscripciones'],
+            'name' => 'Reportes',
+            'url' => route('portal.reports.index'),
+            'active' => request()->routeIs('portal.sreport.*'),
+            'icon' => 'fa-solid fa-file',
+            'can' => ['Visualizar historial suscripciones'],
         ],
         [
             'name' => 'Volver a fundación sharat',
@@ -104,7 +104,10 @@
         <div>
             <ul class="space-y-2 font-medium">
                 @foreach ($links as $link)
-                    @if ((!isset($link['can']) || auth()->user()->can($link['can'][0])) && (!isset($link['condition']) || $link['condition']))
+                    @if (
+                        (!isset($link['can']) ||
+                            auth()->user()->can($link['can'][0])) &&
+                            (!isset($link['condition']) || $link['condition']))
                         <li>
                             @if ($link['name'] === 'Cerrar sesión')
                                 <a href="{{ $link['url'] }}" onclick="event.preventDefault(); confirmLogout();"
@@ -114,7 +117,8 @@
                                         {{ $link['name'] }}
                                     </span>
                                 </a>
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                    style="display: none;">
                                     @csrf
                                 </form>
                             @else

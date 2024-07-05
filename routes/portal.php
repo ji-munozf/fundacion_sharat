@@ -6,8 +6,8 @@ use App\Http\Controllers\Portal\PermissionController;
 use App\Http\Controllers\Portal\PlanController;
 use App\Http\Controllers\Portal\PostulationController;
 use App\Http\Controllers\Portal\PremiumBenefitController;
+use App\Http\Controllers\Portal\ReportController;
 use App\Http\Controllers\Portal\RoleController;
-use App\Http\Controllers\Portal\SubscriptionController;
 use App\Http\Controllers\Portal\UserController;
 use App\Http\Controllers\Portal\VacancyController;
 use Illuminate\Support\Facades\Route;
@@ -18,7 +18,8 @@ Route::middleware([
     'verified',
     'can:Acceso al dashboard',
 ])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('portal.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('portal.dashboard');
 });
 
 Route::middleware([
@@ -93,6 +94,12 @@ Route::middleware([
     Route::get('/postulation/{postulation}/edit-reasons', [VacancyController::class, 'editReasonsForm'])->name('postulation.editReasonsForm');
     Route::post('/postulation/{postulation}/edit-reasons', [VacancyController::class, 'updateReasons'])->name('postulation.updateReasons');
     Route::get('/postulation/cancel/{id}', [VacancyController::class, 'cancelPostulation'])->name('postulation.cancel');
+    Route::get('/postulation/check-eliminated/{id}', [VacancyController::class, 'checkPostulationEliminated'])->name('postulation.checkEliminated');
+
+    Route::get('/postulation/destroy/{id}', [VacancyController::class, 'destroyPostulante'])->name('postulation.destroy');
+
+    Route::post('/vacancies/{vacancy}/revert-destroy', [VacancyController::class, 'revertirDestroyPostulante'])
+        ->name('postulation.revertDestroy');
 });
 
 Route::middleware([
@@ -103,6 +110,8 @@ Route::middleware([
     Route::resource('/institutions', InstitutionController::class)
         ->names('portal.institutions')
         ->except('show');
+    Route::get('/institutions/change/{id}', [InstitutionController::class, 'changeIsActive'])
+        ->name('portal.institutions.change');
 });
 
 Route::middleware([
@@ -124,6 +133,8 @@ Route::middleware([
         ->name('portal.postulations.userData');
     Route::post('/postulations/save-selected', [PostulationController::class, 'saveSelected'])
         ->name('postulations.saveSelected');
+    Route::post('/postulations/{postulation}/cancel', [PostulationController::class, 'cancelPostulation'])
+        ->name('portal.postulations.cancel');
 });
 
 Route::middleware([
@@ -158,9 +169,37 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::resource('/subscriptions', SubscriptionController::class)
-        ->names('portal.subscriptions')
-        ->except('show');
-    Route::get('/subscriptions/export', [SubscriptionController::class, 'exportToExcel'])
+    Route::resource('/reports', ReportController::class)
+        ->names('portal.reports')
+        ->except(['create', 'store', 'show', 'edit', 'update', 'destroy']);
+    Route::get('reports/vacancies', [ReportController::class, 'vacancyIndex'])
+        ->name('portal.reports.vacancies');
+    Route::get('reports/vacancies/export', [ReportController::class, 'exportToExcelVacancies'])
+        ->name('vacancies.export');
+    Route::post('/revertir-eliminar-vacancy/{id}', [ReportController::class, 'revertirEliminarVacancy'])
+        ->name('revertir-eliminar-vacancy');
+    Route::delete('reports/vacancies/clean', [ReportController::class, 'cleanVacancies'])
+        ->name('clean.vacancies');
+    Route::get('reports/postulations', [ReportController::class, 'postulationIndex'])
+        ->name('portal.reports.postulations');
+    Route::get('reports/postulations/export', [ReportController::class, 'exportToExcelPostulations'])
+        ->name('postulations.export');
+    Route::post('/revertir-eliminar-postulation/{id}', [ReportController::class, 'revertirEliminarPostulation'])
+        ->name('revertir-eliminar-postulation');
+    Route::delete('reports/postulations/clean', [ReportController::class, 'cleanPostulations'])
+        ->name('clean.postulations');
+    Route::get('reports/subscriptions', [ReportController::class, 'subscriptionIndex'])
+        ->name('portal.reports.subscriptions');
+    Route::get('reports/subscriptions/export', [ReportController::class, 'exportToExcelSubs'])
         ->name('subscriptions.export');
+    Route::delete('reports/subscriptions/clean', [ReportController::class, 'cleanSubscriptions'])
+        ->name('clean.subscriptions');
+    Route::get('reports/postulation_user_data', [ReportController::class, 'postulationDataIndex'])
+        ->name('portal.reports.postulation_data');
+    Route::get('reports/postulation_user_data/export', [ReportController::class, 'exportToExcelPostulationUsersData'])
+        ->name('postulation_users_data.export');
+    Route::delete('reports/destroy-postulation-data/{id}', [ReportController::class, 'destroyPostulationData'])
+        ->name('destroy.postulation.data');
+    Route::delete('reports/postulation_user_data/clean', [ReportController::class, 'cleanPostulationUsersData'])
+        ->name('clean.postulation_user_data');
 });

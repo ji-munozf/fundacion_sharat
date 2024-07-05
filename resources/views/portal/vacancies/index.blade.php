@@ -77,7 +77,7 @@
                             </td>
                             <td class="px-6 py-4">
                                 ${{ number_format($vacancy->gross_salary, 0, ',', '.') }}
-                            </td>                            
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 {{ $vacancy->active ? 'Sí' : 'No' }}
                             </td>
@@ -105,7 +105,8 @@
                                     class="inline-block w-full mb-2" id="deleteForm{{ $vacancy->id }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="button" onclick="confirmDelete({{ $vacancy->id }})"
+                                    <button type="button"
+                                        onclick="confirmDelete({{ $vacancy->id }}, {{ $vacancy->pendingApplicationsCount }})"
                                         class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm w-full h-12 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
                                         <i class="fa-regular fa-trash-can mr-1"></i>
                                         Eliminar
@@ -113,23 +114,44 @@
                                 </form>
                                 @if ($vacancy->active && auth()->user()->can('Visualizar postulantes'))
                                     @php
-                                        $newApplicationsCount = $vacancy->applications()->count();
+                                        $user = auth()->user();
+                                        $isSuperAdmin = $user->hasRole('Super admin');
+                                        $isAdmin = $user->hasRole('Admin');
+                                        $isInstitution = $user->hasRole('Institución');
+
+                                        if ($isSuperAdmin || $isAdmin) {
+                                            // Para Super admin y Admin, contar todas las postulaciones sin importar el estado de is_eliminated_postulant
+                                            $applicationsCount = DB::table('postulations')
+                                                ->where('vacancy_id', $vacancy->id)
+                                                ->count();
+                                        } elseif ($isInstitution) {
+                                            // Para Institución, contar solo las postulaciones donde is_eliminated_postulant es false
+                                            $applicationsCount = DB::table('postulations')
+                                                ->where('vacancy_id', $vacancy->id)
+                                                ->whereExists(function ($query) use ($vacancy) {
+                                                    $query
+                                                        ->select(DB::raw(1))
+                                                        ->from('vacancies')
+                                                        ->whereColumn('vacancies.id', 'postulations.vacancy_id')
+                                                        ->where('vacancies.is_eliminated_postulant', false);
+                                                })
+                                                ->count();
+                                        }
                                     @endphp
                                     <a href="{{ route('portal.vacancies.candidates', $vacancy->id) }}">
                                         <button type="button"
                                             class="focus:outline-none text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:ring-yellow-500 font-medium rounded-lg text-sm w-full h-12 mb-2 dark:focus:ring-yellow-900">
                                             <i class="fa-solid fa-user mr-1"></i>
                                             Ver postulantes
-                                            @if ($newApplicationsCount > 0)
+                                            @if ($applicationsCount > 0)
                                                 <span
                                                     class="inline-flex items-center justify-center w-4 h-4 ms-2 text-xs font-semibold text-blue-800 bg-gray-100 rounded-full">
-                                                    {{ $newApplicationsCount }}
+                                                    {{ $applicationsCount }}
                                                 </span>
                                             @endif
                                         </button>
                                     </a>
                                 @endif
-
                             </td>
                         </tr>
                     @endforeach
@@ -149,10 +171,18 @@
 
     @push('js')
         <script>
-            function confirmDelete(id) {
+            function confirmDelete(id, pendingApplications) {
+                let textMessage = "No podrás revertir esta acción";
+                if (pendingApplications > 0) {
+                    const postulationText = pendingApplications === 1 ? 'postulación' : 'postulaciones';
+                    const actionText = pendingApplications === 1 ? 'rechazará' : 'rechazarán';
+                    textMessage =
+                        `Todavía hay ${pendingApplications} ${postulationText} en estado pendiente. Al eliminar la vacante se ${actionText}.`;
+                }
+
                 Swal.fire({
                     title: '¿Estás seguro?',
-                    text: "No podrás revertir esta acción",
+                    text: textMessage,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: 'green',
@@ -167,5 +197,4 @@
             }
         </script>
     @endpush
-
 </x-portal-layout>

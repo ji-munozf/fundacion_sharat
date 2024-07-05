@@ -17,22 +17,17 @@ class Vacancy extends Model
         'number_of_vacancies',
         'gross_salary',
         'active',
-        'user_id', // Llave foránea hacia la tabla "users"
-        'institution_id', // Llave foránea hacia la tabla "institutions"
+        'is_eliminated',
+        'is_eliminated_postulant',
+        'user_id',
+        'institution_id',
     ];
 
-    public function getFormattedGrossSalaryAttribute()
-    {
-        return '$' . number_format($this->gross_salary, 0, ',', '.');
-    }
-
-    // Relación con la tabla "users"
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Relación con la tabla "institutions"
     public function institution()
     {
         return $this->belongsTo(Institution::class);

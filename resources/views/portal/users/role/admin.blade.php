@@ -99,6 +99,10 @@
         </div>
     @endif
 
+    <div class="mt-4">
+        {{ $users->links() }}
+    </div>
+
     @push('js')
         <script>
             function confirmDelete(id) {

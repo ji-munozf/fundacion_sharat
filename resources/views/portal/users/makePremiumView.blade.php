@@ -51,9 +51,9 @@
             <div class="mb-4">
                 <x-label for="file_input" class="mb-2">Comprobante transferencia</x-label>
                 <input
-                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400"
+                    class="block w-full text-sm mb-1 text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400"
                     id="file_input" name="file_input" type="file" accept=".jpg, .jpeg, .png" required>
-                <span class="text-xs text-gray-600 dark:text-gray-400">Solo se aceptan documentos JPG o PNG.</span>
+                <span class="text-sm text-gray-600 dark:text-gray-400">Solo se aceptan documentos JPG o PNG.</span>
             </div>
         
             <div class="flex justify-end">

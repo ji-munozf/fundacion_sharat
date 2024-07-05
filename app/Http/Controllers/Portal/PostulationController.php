@@ -22,7 +22,8 @@ class PostulationController extends Controller implements \Illuminate\Routing\Co
             (new Middleware(middleware: 'can:Visualizar postulación'))->only('index'),
             (new Middleware(middleware: 'can:Crear postulación'))->only('requestVacancy'),
             (new Middleware(middleware: 'can:Editar postulación'))->only('edit'),
-            (new Middleware(middleware: 'can:Cancelar postulación'))->only('destroy'),
+            (new Middleware(middleware: 'can:Cancelar postulación'))->only('cancelPostulation'),
+            (new Middleware(middleware: 'can:Eliminar postulación'))->only('destroy'),
         ];
     }
     /**
@@ -35,15 +36,25 @@ class PostulationController extends Controller implements \Illuminate\Routing\Co
         // Verificar si el usuario tiene el rol de "Postulante" y plan_id 2
         $isPostulantWithPlan2 = $user->hasRole('Postulante') && $user->plan_id == 2;
 
-        // Obtener las aplicaciones del usuario actual con sus respectivas vacantes y estados
+        // Obtener las aplicaciones del usuario actual con sus respectivas vacantes y estados, excluyendo las eliminadas
         $postulations = Postulation::where('user_id', $user->id)
+            ->where('is_eliminated', 0)
             ->with(['vacancy', 'status'])
             ->get()
             ->keyBy('vacancy_id');
 
+        // Obtener IDs de las vacantes que tienen postulaciones eliminadas
+        $eliminatedPostulationsVacancyIds = Postulation::where('user_id', $user->id)
+            ->where('is_eliminated', 1)
+            ->pluck('vacancy_id')
+            ->toArray();
+
         // Filtrar vacantes activas e inactivas dependiendo del estado de la postulación del usuario
-        $activeVacancies = Vacancy::where('active', true);
+        $activeVacancies = Vacancy::where('active', true)
+            ->whereNotIn('id', $eliminatedPostulationsVacancyIds);
+
         $inactiveVacancies = Vacancy::where('active', false)
+            ->whereNotIn('id', $eliminatedPostulationsVacancyIds)
             ->whereIn('id', $postulations->whereIn('status.status', [0, 1])->pluck('vacancy_id'));
 
         // Unir ambas consultas
@@ -318,10 +329,7 @@ class PostulationController extends Controller implements \Illuminate\Routing\Co
         return redirect()->route('portal.postulations.index')->with('error', 'La postulación no tiene un estado definido.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Postulation $postulation)
+    public function cancelPostulation(Postulation $postulation)
     {
         // Obtener el usuario que hizo la postulación
         $user = $postulation->user;
@@ -358,6 +366,25 @@ class PostulationController extends Controller implements \Illuminate\Routing\Co
             'icon' => 'success',
             'title' => '¡Bien hecho!',
             'text' => 'La postulación a la vacante se canceló correctamente',
+        ]);
+
+        // Redirigir al usuario a la página principal
+        return redirect()->route('portal.postulations.index');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Postulation $postulation)
+    {
+        // Actualizar el campo 'is_eliminated' a 1
+        $postulation->update(['is_eliminated' => 1]);
+
+        // Crear el mensaje de éxito con el nombre de la vacante
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => '¡Bien hecho!',
+            'text' => 'La vacate que se postuló se eliminó correctamente',
         ]);
 
         // Redirigir al usuario a la página principal
