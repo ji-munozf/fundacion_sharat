@@ -1,6 +1,14 @@
 @section('title', 'Sharat - Mi perfil')
 
-<x-portal-layout>
+<x-portal-layout :breadcrumb="[
+    [
+        'name' => 'Home',
+        'url' => route('portal.dashboard'),
+    ],
+    [
+        'name' => 'Mi perfil',
+    ],
+]">
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('Profile') }}

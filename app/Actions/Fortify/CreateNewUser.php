@@ -23,7 +23,7 @@ class CreateNewUser implements CreatesNewUsers
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'rut' => ['required', 'string', function ($attribute, $value, $fail) {
+            'rut' => ['required', 'string', 'unique:users', function ($attribute, $value, $fail) {
                 try {
                     $chileRut = new ChileRut();
 

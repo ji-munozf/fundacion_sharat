@@ -1,18 +1,6 @@
-@section('title', 'Sharat - Change password')
+@section('title', 'Sharat - Cambiar contraseña')
 
-<x-portal-layout :breadcrumb="[
-    [
-        'name' => 'Home',
-        'url' => route('portal.dashboard')
-    ],
-    [
-        'name' => 'Usuarios',
-        'url' => route('portal.users.index')
-    ],
-    [
-        'name' => 'Cambiar contraseña'
-    ],
-]">
+<x-portal-layout :breadcrumb="$breadcrumb_pass">
     <div class="bg-white shadow rounded-lg p-6 dark:bg-gray-800">
         <div class="mb-4 text-center text-lg">
             Cambiar contraseña de: {{ $user->name }}

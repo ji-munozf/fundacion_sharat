@@ -112,22 +112,25 @@
                                         Eliminar
                                     </button>
                                 </form>
-                                @php
-                                    $newApplicationsCount = $vacancy->applications()->count();
-                                @endphp
-                                <a href="{{ route('portal.vacancies.candidates', $vacancy->id) }}">
-                                    <button type="button"
-                                        class="focus:outline-none text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:ring-yellow-500 font-medium rounded-lg text-sm w-full h-12 mb-2 dark:focus:ring-yellow-900">
-                                        <i class="fa-solid fa-user mr-1"></i>
-                                        Ver postulantes
-                                        @if ($newApplicationsCount > 0)
-                                            <span
-                                                class="inline-flex items-center justify-center w-4 h-4 ms-2 text-xs font-semibold text-blue-800 bg-gray-100 rounded-full">
-                                                {{ $newApplicationsCount }}
-                                            </span>
-                                        @endif
-                                    </button>
-                                </a>
+                                @if ($vacancy->active && auth()->user()->can('Visualizar postulantes'))
+                                    @php
+                                        $newApplicationsCount = $vacancy->applications()->count();
+                                    @endphp
+                                    <a href="{{ route('portal.vacancies.candidates', $vacancy->id) }}">
+                                        <button type="button"
+                                            class="focus:outline-none text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:ring-yellow-500 font-medium rounded-lg text-sm w-full h-12 mb-2 dark:focus:ring-yellow-900">
+                                            <i class="fa-solid fa-user mr-1"></i>
+                                            Ver postulantes
+                                            @if ($newApplicationsCount > 0)
+                                                <span
+                                                    class="inline-flex items-center justify-center w-4 h-4 ms-2 text-xs font-semibold text-blue-800 bg-gray-100 rounded-full">
+                                                    {{ $newApplicationsCount }}
+                                                </span>
+                                            @endif
+                                        </button>
+                                    </a>
+                                @endif
+
                             </td>
                         </tr>
                     @endforeach

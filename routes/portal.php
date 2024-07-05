@@ -1,9 +1,10 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Portal\ApplicationController;
 use App\Http\Controllers\Portal\InstitutionController;
 use App\Http\Controllers\Portal\PermissionController;
+use App\Http\Controllers\Portal\PlanController;
+use App\Http\Controllers\Portal\PostulationController;
 use App\Http\Controllers\Portal\RoleController;
 use App\Http\Controllers\Portal\UserController;
 use App\Http\Controllers\Portal\VacancyController;
@@ -26,6 +27,12 @@ Route::middleware([
     Route::resource('/users', UserController::class)
         ->names('portal.users')
         ->except('show');
+    Route::get('/users/admins', [UserController::class, 'indexAdmins'])
+        ->name('portal.users.role.admin');
+    Route::get('/users/institutions', [UserController::class, 'indexInstitutions'])
+        ->name('portal.users.role.institution');
+    Route::get('/users/applicants', [UserController::class, 'indexPostulations'])
+        ->name('portal.users.role.postulation');
     Route::get('/users/{user}/password', [UserController::class, 'password'])
         ->name('portal.users.password');
     Route::post('/users/{user}/password', [UserController::class, 'updatePass'])
@@ -69,6 +76,15 @@ Route::middleware([
     Route::get('vacancies/download-cv/{id}', [VacancyController::class, 'downloadCV'])
         ->name('portal.vacancies.downloadCV');
 
+    Route::get('/postulation/{postulation}/accept', [VacancyController::class, 'showAcceptForm'])->name('postulation.showAcceptForm');
+    Route::post('/postulation/{postulation}/accept', [VacancyController::class, 'acceptPostulation'])->name('postulation.accept');
+
+    Route::get('/postulation/{postulation}/reject', [VacancyController::class, 'showRejectForm'])->name('postulation.showRejectForm');
+    Route::post('/postulation/{postulation}/reject', [VacancyController::class, 'rejectPostulation'])->name('postulation.reject');
+
+    Route::get('/postulation/{postulation}/edit-reasons', [VacancyController::class, 'editReasonsForm'])->name('postulation.editReasonsForm');
+    Route::post('/postulation/{postulation}/edit-reasons', [VacancyController::class, 'updateReasons'])->name('postulation.updateReasons');
+    Route::get('/postulation/cancel/{id}', [VacancyController::class, 'cancelPostulation'])->name('postulation.cancel');
 });
 
 Route::middleware([
@@ -86,11 +102,23 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::resource('/applications', ApplicationController::class)
-        ->names('portal.applications')
+    Route::resource('/postulations', PostulationController::class)
+        ->names('portal.postulations')
         ->except(['create', 'store', 'show']);
-    Route::get('/applications/request_vacancy/{vacancy}', [ApplicationController::class, 'requestVacancy'])
-        ->name('portal.applications.request_vacancy');
-    Route::post('/applications/request_vacancy/{vacancy}', [ApplicationController::class, 'sendRequestVacancy'])
-        ->name('portal.applications.sendRequestVacancy');
+    Route::get('/postulations/request_vacancy/{vacancy}', [PostulationController::class, 'requestVacancy'])
+        ->name('portal.postulations.request_vacancy');
+    Route::post('/postulations/request_vacancy/{vacancy}', [PostulationController::class, 'sendRequestVacancy'])
+        ->name('portal.postulations.sendRequestVacancy');
+    Route::get('/postulations/{id}/reasons', [PostulationController::class, 'showReasons'])->name('portal.postulations.showReasons');
+
+});
+
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->group(function () {
+    Route::resource('/plans', PlanController::class)
+        ->names('portal.plans')
+        ->except('show');
 });

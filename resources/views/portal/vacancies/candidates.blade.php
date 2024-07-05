@@ -13,89 +13,90 @@
         'name' => 'Ver postulantes',
     ],
 ]">
-    @if ($applications->count())
+    @if ($postulations->count())
 
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg mb-4">
             <table class="w-full text-sm rtl:text-right text-center text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
-                        <th scope="col" class="px-6 py-3">
-                            Nombre
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            Apellidos
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            Email
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            Teléfono de contacto
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            Curriculum Vitae
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            Fortalezas
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            Razones
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            Vacante
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            Acciones
-                        </th>
+                        <th scope="col" class="px-6 py-3">Nombre</th>
+                        <th scope="col" class="px-6 py-3">Apellidos</th>
+                        <th scope="col" class="px-6 py-3">Email</th>
+                        <th scope="col" class="px-6 py-3">Teléfono de contacto</th>
+                        <th scope="col" class="px-6 py-3">Curriculum Vitae</th>
+                        <th scope="col" class="px-6 py-3">Fortalezas</th>
+                        <th scope="col" class="px-6 py-3">Razones</th>
+                        <th scope="col" class="px-6 py-3">Vacante</th>
+                        <th scope="col" class="px-6 py-3">Estado</th>
+                        <th scope="col" class="px-6 py-3">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($applications as $application)
+                    @foreach ($postulations as $postulation)
                         <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                            <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                {{ $application->names }}
+                            <td class="px-6 py-4">{{ $postulation->names }}</td>
+                            <td class="px-6 py-4">{{ $postulation->last_names }}</td>
+                            <td class="px-6 py-4">{{ $postulation->email }}</td>
+                            <td class="px-6 py-4">
+                                {{ substr($postulation->contact_number, 0, 4) }}
+                                {{ substr($postulation->contact_number, 4) }}
                             </td>
                             <td class="px-6 py-4">
-                                {{ $application->last_names }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ $application->email }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ substr($application->contact_number, 0, 4) }} {{ substr($application->contact_number, 4) }}
-                            </td>
-                            <td class="px-6 py-4">
-                                <a href="{{ route('portal.vacancies.downloadCV', $application->id) }}">
+                                <a href="{{ route('portal.vacancies.downloadCV', $postulation->id) }}">
                                     <button type="button"
-                                    class="focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm w-full h-12 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                    <i class="fa-solid fa-download mr-1"></i>
+                                        class="px-5 py-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                        <i class="fa-solid fa-download mr-1"></i>
                                         Descargar CV
                                     </button>
                                 </a>
                             </td>
+                            <td class="px-6 py-4">{{ $postulation->strengths }}</td>
+                            <td class="px-6 py-4">{{ $postulation->reasons }}</td>
+                            <td class="px-6 py-4">{{ $postulation->vacancy_name }}</td>
                             <td class="px-6 py-4">
-                                {{ $application->strengths }}
+                                @if (is_null($postulation->postulation_status))
+                                    Pendiente
+                                @elseif ($postulation->postulation_status)
+                                    Aceptado
+                                @else
+                                    Rechazado
+                                @endif
                             </td>
                             <td class="px-6 py-4">
-                                {{ $application->reasons }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ $application->vacancy_title }}
-                            </td>
-                            <td class="px-6 py-4">
-                                <a href="#">
+                                @if (is_null($postulation->postulation_status))
+                                    <a href="{{ route('postulation.showAcceptForm', $postulation->id) }}">
+                                        <button type="button"
+                                            @if ($vacancy->number_of_vacancies == 0) class="w-32 px-5 py-3 mb-2 text-sm font-medium text-center text-white rounded-lg focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800
+                                                bg-green-800 dark:bg-green-700 cursor-not-allowed"
+                                            @else 
+                                                class="w-32 px-5 py-3 mb-2 text-sm font-medium text-center text-white rounded-lg focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800
+                                                bg-green-700 hover:bg-green-800 dark:bg-green-600 dark:hover:bg-green-700" @endif
+                                            @if ($vacancy->number_of_vacancies == 0) disabled @endif>
+                                            <i class="fa-solid fa-check mr-1"></i>
+                                            Aceptar
+                                        </button>
+                                    </a>
+                                    <a href="{{ route('postulation.showRejectForm', $postulation->id) }}">
+                                        <button type="button"
+                                            class="w-32 px-5 py-3 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                                            <i class="fa-solid fa-x mr-1"></i> Rechazar
+                                        </button>
+                                    </a>
+                                @else
+                                    <a href="{{ route('postulation.editReasonsForm', $postulation->id) }}">
+                                        <button type="button"
+                                            class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm w-full h-12 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                                            <i class="fa-solid fa-edit mr-1"></i>
+                                            Editar Razón
+                                        </button>
+                                    </a>
                                     <button type="button"
-                                        class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm w-full h-12 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
-                                        <i class="fa-solid fa-check mr-1"></i>
-                                        Aceptar
+                                        class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm w-full h-12 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+                                        onclick="confirmCancel({{ $postulation->id }})">
+                                        <i class="fa-solid fa-ban mr-1"></i>
+                                        Revertir elección
                                     </button>
-                                </a>
-                                <a href="#">
-                                    <button type="button"
-                                    class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm w-full h-12 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
-                                    <i class="fa-solid fa-x mr-1"></i>
-                                        Rechazar
-                                    </button>
-                                </a>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
@@ -109,5 +110,25 @@
         </div>
     @endif
 
+    @push('js')
+        <script>
+            function confirmCancel(postulationId) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "¡No podrás revertir esta acción!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: 'green',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, cancelar',
+                    cancelButtonText: 'No, mantener'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `/postulation/cancel/${postulationId}`;
+                    }
+                })
+            }
+        </script>
+    @endpush
 
 </x-portal-layout>

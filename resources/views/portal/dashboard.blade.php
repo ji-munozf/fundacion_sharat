@@ -272,4 +272,76 @@
             </div>
         </div>
     @endrole
+
+    @role('Postulante')
+        <div class="grid grid-cols-1 gap-6 mb-5">
+            <div class="bg-white rounded-lg shadow-lg px-6 py-4 dark:bg-gray-800 flex flex-col">
+                <div class="text-xl text-center font-semibold">
+                    <h1>
+                        <i class="fa-solid fa-dollar-sign mr-1"></i>
+                        Suscripción
+                    </h1>
+                </div>
+                <div class="mb-2 text-m text-center font-medium text-gray-500 dark:text-gray-300">
+                    Usted actualmente tiene el plan gratuito.
+                </div>
+                <div class="flex justify-center mb-4">
+                    <a href="{{ route('portal.plans.index') }}">
+                        <button type="button"
+                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                            <i class="fa-solid                                                                                   mr-1"></i>
+                            Ir al menú planes
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-5">
+            <div class="bg-white rounded-lg shadow-lg px-6 py-4 dark:bg-gray-800 flex flex-col">
+                <div class="text-xl text-center font-semibold">
+                    <h1>
+                        <i class="fa-solid fa-paste text-start mr-1"></i>
+                        Vacantes activas
+                    </h1>
+                </div>
+                <div class="mb-2 text-m text-center font-medium text-gray-500 dark:text-gray-300">
+                    Hay {{ $totalActiveVacancies }} vacantes disponibles para postular.
+                </div>
+                <div class="flex justify-center mb-4">
+                    <a href="{{ route('portal.postulations.index') }}">
+                        <button type="button"
+                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                            <i class="fa-solid fa-paste mr-1"></i>
+                            Ir al menú postulaciones
+                        </button>
+                    </a>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-lg px-6 py-4 dark:bg-gray-800 flex flex-col">
+                <div class="text-xl text-center font-semibold">
+                    <h1>
+                        <i class="fa-solid fa-paste text-start mr-1"></i>
+                        Postulaciones
+                    </h1>
+                </div>
+                <div class="mb-2 text-m text-center font-medium text-gray-500 dark:text-gray-300">
+                    @if ($postulationsCount > 0)
+                        Usted se ha postulado a {{ $postulationsCount }} vacantes.
+                    @else
+                        No se ha postulado a ninguna vacante en estos momentos.
+                    @endif
+                </div>
+                <div class="flex justify-center mb-4">
+                    <a href="{{ route('portal.postulations.index') }}">
+                        <button type="button"
+                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                            <i class="fa-solid fa-paste mr-1"></i>
+                            Ir al menú postulaciones
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endrole
 </x-portal-layout>

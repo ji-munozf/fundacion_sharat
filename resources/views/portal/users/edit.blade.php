@@ -1,18 +1,6 @@
-@section('title', 'Sharat - Edit user')
+@section('title', 'Sharat - Editar usuario')
 
-<x-portal-layout :breadcrumb="[
-    [
-        'name' => 'Home',
-        'url' => route('portal.dashboard')
-    ],
-    [
-        'name' => 'Usuarios',
-        'url' => route('portal.users.index')
-    ],
-    [
-        'name' => 'Editar'
-    ],
-]">
+<x-portal-layout :breadcrumb="$breadcrumb_edit">
     <div class="bg-white shadow rounded-lg p-6 dark:bg-gray-800">
         <div class="mb-4 text-center text-lg">
             Editar usuario: {{ $user->name }}
@@ -54,11 +42,11 @@
             <div class="mb-4">
                 <x-label class="mb-2">Rol del usuario</x-label>
                 <select name="role"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    {{ $isEditingOwnProfile ? 'disabled' : '' }}>
                     <option value="">Seleccione un rol</option>
                     @foreach ($roles as $role)
-                        <option value="{{ $role->name }}"
-                            {{ old('role', $user->roles->first()->name ?? '') == $role->name ? 'selected' : '' }}>
+                        <option value="{{ $role->name }}" {{ old('role', $user->roles->first()->name ?? '') == $role->name ? 'selected' : '' }}>
                             {{ $role->name }}
                         </option>
                     @endforeach

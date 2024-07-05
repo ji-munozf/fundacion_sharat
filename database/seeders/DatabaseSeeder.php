@@ -19,10 +19,6 @@ class DatabaseSeeder extends Seeder
     {
         Permission::create(['name' => 'Acceso al dashboard']);
 
-        Permission::create(['name' => 'Visualizar perfil']);
-
-        Permission::create(['name' => 'Acceder lista usuarios']);
-
         Permission::create(['name' => 'Visualizar usuarios']);
         Permission::create(['name' => 'Crear usuarios']);
         Permission::create(['name' => 'Actualizar usuarios']);
@@ -49,13 +45,20 @@ class DatabaseSeeder extends Seeder
         Permission::create(['name' => 'Crear vacantes']);
         Permission::create(['name' => 'Actualizar vacantes']);
         Permission::create(['name' => 'Eliminar vacantes']);
-        Permission::create(['name' => 'Visualizar vacantes publicadas']);
-        Permission::create(['name' => 'Solicitar vacante']);
+        Permission::create(['name' => 'Visualizar postulantes']);
+        Permission::create(['name' => 'Descargar CV']);
+        Permission::create(['name' => 'Visualizar botón aceptar']);
+        Permission::create(['name' => 'Visualizar botón rechazar']);
+        Permission::create(['name' => 'Actualizar razones']);
+        Permission::create(['name' => 'Cancelar elección']);
 
         Permission::create(['name' => 'Visualizar postulación']);
         Permission::create(['name' => 'Crear postulación']);
         Permission::create(['name' => 'Editar postulación']);
         Permission::create(['name' => 'Cancelar postulación']);
+
+        Permission::create(['name' => 'Visualizar planes']);
+        Permission::create(['name' => 'Cancelar plan']);
 
         // Crear Roles
         $superAdminRole = Role::create(['name' => 'Super admin']);
@@ -64,15 +67,28 @@ class DatabaseSeeder extends Seeder
         $postulanteRole = Role::create(['name' => 'Postulante']);
 
         // Asignar permisos al rol de institución
+        $adminRole->givePermissionTo([
+            'Acceso al dashboard',
+            'Visualizar usuarios', 'Crear usuarios', 'Actualizar usuarios', 'Eliminar usuarios', 'Cambiar contraseña',
+            'Visualizar roles', 'Crear roles', 'Actualizar roles', 'Eliminar roles', 'Añadir permisos',
+            'Visualizar permisos', 'Crear permisos', 'Actualizar permisos', 'Eliminar permisos',
+            'Visualizar instituciones', 'Crear instituciones', 'Actualizar instituciones',
+            'Visualizar vacantes', 'Crear vacantes', 'Actualizar vacantes', 'Eliminar vacantes'
+        ]);
+
+        // Asignar permisos al rol de institución
         $institucionRole->givePermissionTo([
             'Acceso al dashboard', 'Visualizar usuarios',
-            'Visualizar vacantes', 'Crear vacantes', 'Actualizar vacantes', 'Eliminar vacantes', 'Visualizar vacantes publicadas', 'Solicitar vacante',
+            'Visualizar vacantes', 'Crear vacantes', 'Actualizar vacantes', 'Eliminar vacantes',
+            'Visualizar postulantes', 'Descargar CV', 'Visualizar botón aceptar', 'Visualizar botón rechazar',
+            'Actualizar razones', 'Cancelar elección', 
         ]);
 
         // Asignar permisos al rol de postulante
         $postulanteRole->givePermissionTo([
             'Acceso al dashboard',
-            'Visualizar postulación', 'Crear postulación', 'Editar postulación', 'Cancelar postulación'
+            'Visualizar postulación', 'Crear postulación', 'Editar postulación', 'Cancelar postulación',
+            'Visualizar planes', 'Cancelar plan'
         ]);
 
         // Crear Institutions
@@ -83,11 +99,11 @@ class DatabaseSeeder extends Seeder
         // Crear usuarios y asignarles el role 
 
         $superAdminUser = User::firstOrCreate([
-            'email' => 'superadmin@sharat.cl',
+            'email' => 'soporte@fundacionsharat.cl',
         ], [
             'rut' => '11675997-7',
             'name' => 'Sharat',
-            'email' => 'superadmin@sharat.cl',
+            'email' => 'soporte@fundacionsharat.cl',
             'password' => Hash::make('Tsvsoporte2024@'),
             'institution_id' => 1,
         ]);

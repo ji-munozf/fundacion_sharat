@@ -14,6 +14,13 @@
             'icon' => 'fa-solid fa-id-card-clip',
         ],
         [
+            'name' => 'Planes',
+            'url' => route('portal.plans.index'),
+            'active' => request()->routeIs('portal.plans.*'),
+            'icon' => 'fa-solid fa-dollar-sign',
+            'can' => ['Visualizar planes'],
+        ],
+        [
             'name' => 'Usuarios',
             'url' => route('portal.users.index'),
             'active' => request()->routeIs('portal.users.*'),
@@ -50,8 +57,8 @@
         ],
         [
             'name' => 'Postulaciones',
-            'url' => route('portal.applications.index'),
-            'active' => request()->routeIs('portal.applications.*'),
+            'url' => route('portal.postulations.index'),
+            'active' => request()->routeIs('portal.postulations.*'),
             'icon' => 'fa-solid fa-bell',
             'can' => ['Visualizar postulación'],
         ],
@@ -78,35 +85,41 @@
         '-translate-x-full': !open,
         'transform-none': open
     }" aria-label="Sidebar">
-    <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
-        <ul class="space-y-2 font-medium">
-            @foreach ($links as $link)
-                @canany($link['can'] ?? [null])
-                    <li>
-                        @if ($link['name'] === 'Cerrar sesión')
-                            <a href="{{ $link['url'] }}" onclick="event.preventDefault(); confirmLogout();"
-                                class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                                <i class="{{ $link['icon'] }} text-gray-700 dark:text-white"></i>
-                                <span class="ms-3">
-                                    {{ $link['name'] }}
-                                </span>
-                            </a>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                @csrf
-                            </form>
-                        @else
-                            <a href="{{ $link['url'] }}"
-                                class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group {{ $link['active'] ? 'bg-gray-200 dark:bg-gray-600' : '' }}">
-                                <i class="{{ $link['icon'] }} text-gray-700 dark:text-white"></i>
-                                <span class="ms-3">
-                                    {{ $link['name'] }}
-                                </span>
-                            </a>
-                        @endif
-                    </li>
-                @endcanany
-            @endforeach
-        </ul>
+    <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800 flex flex-col justify-between">
+        <div>
+            <ul class="space-y-2 font-medium">
+                @foreach ($links as $link)
+                    @canany($link['can'] ?? [null])
+                        <li>
+                            @if ($link['name'] === 'Cerrar sesión')
+                                <a href="{{ $link['url'] }}" onclick="event.preventDefault(); confirmLogout();"
+                                    class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                                    <i class="{{ $link['icon'] }} text-gray-700 dark:text-white"></i>
+                                    <span class="ms-3">
+                                        {{ $link['name'] }}
+                                    </span>
+                                </a>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                    @csrf
+                                </form>
+                            @else
+                                <a href="{{ $link['url'] }}"
+                                    class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group {{ $link['active'] ? 'bg-gray-200 dark:bg-gray-600' : '' }}">
+                                    <i class="{{ $link['icon'] }} text-gray-700 dark:text-white"></i>
+                                    <span class="ms-3">
+                                        {{ $link['name'] }}
+                                    </span>
+                                </a>
+                            @endif
+                        </li>
+                    @endcanany
+                @endforeach
+            </ul>
+        </div>
+        <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
+            <span class="text-xs text-gray-500 sm:text-center dark:text-gray-400" id="footer-year">© <span
+                    id="current-year"></span> Sharat Recruitment. All Rights Reserved.</span>
+        </div>
     </div>
 </aside>
 
@@ -128,5 +141,9 @@
                 }
             });
         }
+    </script>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
     </script>
 @endpush

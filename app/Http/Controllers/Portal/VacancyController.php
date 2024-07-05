@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
-use App\Models\Application;
 use App\Models\Institution;
+use App\Models\Postulation;
+use App\Models\PostulationStatus;
 use App\Models\Vacancy;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
@@ -21,6 +22,12 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
             (new Middleware(middleware: 'can:Crear vacantes'))->only('create'),
             (new Middleware(middleware: 'can:Actualizar vacantes'))->only('edit'),
             (new Middleware(middleware: 'can:Eliminar vacantes'))->only('destroy'),
+            (new Middleware(middleware: 'can:Visualizar postulantes'))->only('candidates'),
+            (new Middleware(middleware: 'can:Descargar CV'))->only('downloadCV'),
+            (new Middleware(middleware: 'can:Visualizar botón aceptar'))->only('showAcceptForm'),
+            (new Middleware(middleware: 'can:Visualizar botón rechazar'))->only('showRejectForm'),
+            (new Middleware(middleware: 'can:Actualizar razones'))->only('editReasonsForm'),
+            (new Middleware(middleware: 'can:Cancelar elección'))->only('cancelPostulation'),
         ];
     }
 
@@ -46,13 +53,13 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
 
         // Calcular el número de nuevas postulaciones para cada vacante
         foreach ($vacancies as $vacancy) {
-            $newApplicationsCount = Application::where('vacancy_id', $vacancy->id)->count();
+            $newApplicationsCount = Postulation::where('vacancy_id', $vacancy->id)->count();
             $vacancy->newApplicationsCount = $newApplicationsCount;
         }
 
         return view('portal.vacancies.index', compact('vacancies'));
     }
-    
+
     /**
      * Show the form for creating a new resource.
      */
@@ -160,22 +167,33 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
      */
     public function candidates(Vacancy $vacancy)
     {
-        $applications = DB::table('applications')
-            ->join('vacancies', 'applications.vacancy_id', '=', 'vacancies.id')
-            ->join('users', 'applications.user_id', '=', 'users.id')
-            ->select('applications.*', 'vacancies.job_title as vacancy_title', 'users.name as user_name')
-            ->where('applications.vacancy_id', $vacancy->id)
+        $postulations = DB::table('postulations')
+            ->leftJoin('postulation_status', 'postulations.id', '=', 'postulation_status.postulation_id')
+            ->join('vacancies', 'postulations.vacancy_id', '=', 'vacancies.id')
+            ->join('users', 'postulations.user_id', '=', 'users.id')
+            ->select(
+                'postulations.*',
+                'vacancies.name as vacancy_name',
+                'vacancies.number_of_vacancies', // Aseguramos que este campo sea parte de la selección
+                'users.name as user_name',
+                'postulation_status.status as postulation_status',
+                'postulation_status.reasons as postulation_reasons'
+            )
+            ->where('postulations.vacancy_id', $vacancy->id)
             ->get();
 
-        return view('portal.vacancies.candidates', ['applications' => $applications, 'vacancy' => $vacancy]);
+        return view('portal.vacancies.candidates', [
+            'postulations' => $postulations,
+            'vacancy' => $vacancy,
+        ]);
     }
 
     public function downloadCV($id)
     {
-        $application = Application::find($id);
+        $postulation = Postulation::find($id);
 
-        if ($application && $application->curriculum_vitae) {
-            $filePath = storage_path('app/public/' . $application->curriculum_vitae);
+        if ($postulation && $postulation->curriculum_vitae) {
+            $filePath = storage_path('app/public/' . $postulation->curriculum_vitae);
 
             if (file_exists($filePath)) {
                 return response()->download($filePath, basename($filePath), [
@@ -187,6 +205,140 @@ class VacancyController extends Controller implements \Illuminate\Routing\Contro
         } else {
             return redirect()->back()->with('error', 'El currículum vitae no se encontró.');
         }
+    }
+
+    public function showAcceptForm(Postulation $postulation)
+    {
+        $vacancy = $postulation->vacancy; // Asegúrate de obtener la vacante relacionada
+
+        return view('portal.vacancies.accept', [
+            'postulation' => $postulation,
+            'vacancy' => $vacancy, // Pasa la vacante a la vista
+        ]);
+    }
+
+    public function showRejectForm(Postulation $postulation)
+    {
+        $vacancy = $postulation->vacancy; // Asegúrate de obtener la vacante relacionada
+
+        return view('portal.vacancies.reject', [
+            'postulation' => $postulation,
+            'vacancy' => $vacancy, // Pasa la vacante a la vista
+        ]);
+    }
+
+    public function acceptPostulation(Request $request, Postulation $postulation)
+    {
+        $request->validate([
+            'razones' => 'required|string',
+        ]);
+
+        $postulationStatus = new PostulationStatus();
+        $postulationStatus->postulation_id = $postulation->id;
+        $postulationStatus->status = true;
+        $postulationStatus->reasons = $request->razones;
+        $postulationStatus->save();
+
+        $vacancy = $postulation->vacancy;
+        $vacancy->number_of_vacancies -= 1;
+        if ($vacancy->number_of_vacancies <= 0) {
+            $vacancy->active = false;
+        }
+        $vacancy->save();
+
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => '¡Bien hecho!',
+            'text' => 'Postulación aceptada',
+        ]);
+
+        // Redireccionar a la lista de vacantes
+        return redirect()->route('portal.vacancies.candidates', $postulation->vacancy_id);
+    }
+
+    public function rejectPostulation(Request $request, Postulation $postulation)
+    {
+        $request->validate([
+            'razones' => 'required|string',
+        ]);
+
+        $postulationStatus = new PostulationStatus();
+        $postulationStatus->postulation_id = $postulation->id;
+        $postulationStatus->status = false;
+        $postulationStatus->reasons = $request->razones;
+        $postulationStatus->save();
+
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => '¡Bien hecho!',
+            'text' => 'Postulación rechazada',
+        ]);
+
+        // Redireccionar a la lista de vacantes
+        return redirect()->route('portal.vacancies.candidates', $postulation->vacancy_id);
+    }
+
+    public function editReasonsForm(Postulation $postulation)
+    {
+        $vacancy = $postulation->vacancy;
+        $postulationStatus = PostulationStatus::where('postulation_id', $postulation->id)->first();
+        return view('portal.vacancies.edit-reasons', [
+            'postulation' => $postulation,
+            'vacancy' => $vacancy,
+            'postulationStatus' => $postulationStatus,
+        ]);
+    }
+
+    public function updateReasons(Request $request, Postulation $postulation)
+    {
+        $request->validate([
+            'reasons' => 'required|string',
+        ]);
+
+        $postulationStatus = PostulationStatus::where('postulation_id', $postulation->id)->first();
+        $postulationStatus->reasons = $request->reasons;
+        $postulationStatus->save();
+
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => '¡Bien hecho!',
+            'text' => 'Razón actualizada',
+        ]);
+
+        // Redireccionar a la lista de vacantes
+        return redirect()->route('portal.vacancies.candidates', $postulation->vacancy_id);
+    }
+
+    public function cancelPostulation($id)
+    {
+        $postulation = Postulation::findOrFail($id);
+        $postulationStatus = PostulationStatus::where('postulation_id', $id)->first();
+
+        if ($postulationStatus) {
+            // Verificar si la postulación estaba aceptada o rechazada
+            $wasAccepted = $postulationStatus->status;
+
+            // Eliminar el estado de la postulación
+            $postulationStatus->delete();
+
+            // Si estaba aceptada, ajustar la vacante
+            if ($wasAccepted) {
+                $vacancy = $postulation->vacancy;
+                $vacancy->number_of_vacancies += 1;
+                if ($vacancy->number_of_vacancies > 0) {
+                    $vacancy->active = true;
+                }
+                $vacancy->save();
+            }
+
+            session()->flash('swal', [
+                'icon' => 'success',
+                'title' => '¡Bien hecho!',
+                'text' => 'Postulación cancelada',
+            ]);
+        }
+
+        return redirect()->route('portal.vacancies.candidates', $postulation->vacancy_id);
     }
 
     /**

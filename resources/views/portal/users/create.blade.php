@@ -1,4 +1,4 @@
-@section('title', 'Sharat - Create user')
+@section('title', 'Sharat - Crear usuario')
 
 <x-portal-layout :breadcrumb="[
     [

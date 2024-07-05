@@ -29,6 +29,7 @@ class DashboardController extends Controller
         $institutions = Institution::all();
         $totalInstitutions = $institutions->count();
         $totalVacancies = Vacancy::count();
+        $totalActiveVacancies = Vacancy::where('active', true)->count(); // Obtener el número de vacantes activas
 
         // Obtener la cantidad de usuarios por rol
         $usersByRole = [];
@@ -50,6 +51,9 @@ class DashboardController extends Controller
             }
         }
 
+        // Contar las postulaciones del usuario actual
+        $postulationsCount = $user->postulations()->count();
+
         return view('portal.dashboard', compact(
             'totalUsers',
             'usersByRole',
@@ -59,9 +63,11 @@ class DashboardController extends Controller
             'totalPermissions',
             'totalInstitutions',
             'totalVacancies',
+            'totalActiveVacancies', // Pasar el número de vacantes activas a la vista
             'userInstitutionName', // Pasar el nombre de la institución del usuario a la vista
             'userInstitutionUserCount', // Pasar la cantidad de usuarios en la institución a la vista
-            'userInstitutionVacancyCount' // Pasar la cantidad de vacantes creadas por la institución a la vista
+            'userInstitutionVacancyCount', // Pasar la cantidad de vacantes creadas por la institución a la vista
+            'postulationsCount'
         ));
     }
 
