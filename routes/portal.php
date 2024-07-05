@@ -25,7 +25,6 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
-    'check.subscriptions',
 ])->group(function () {
     Route::resource('/users', UserController::class)
         ->names('portal.users')
@@ -162,4 +161,6 @@ Route::middleware([
     Route::resource('/subscriptions', SubscriptionController::class)
         ->names('portal.subscriptions')
         ->except('show');
+    Route::get('/subscriptions/export', [SubscriptionController::class, 'exportToExcel'])
+        ->name('subscriptions.export');
 });

@@ -94,5 +94,4 @@
             });
         </script>
     @endpush
-
 </x-portal-layout>

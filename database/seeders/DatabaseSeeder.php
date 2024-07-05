@@ -112,6 +112,7 @@ class DatabaseSeeder extends Seeder
         // Crear usuarios y asignarles el role 
 
         $superAdminUser = User::firstOrCreate([
+            'rut' => '11675997-7',
             'email' => 'soporte@fundacionsharat.cl',
         ], [
             'rut' => '11675997-7',
@@ -124,11 +125,12 @@ class DatabaseSeeder extends Seeder
         $superAdminUser->assignRole($superAdminRole);
 
         $adminUser = User::firstOrCreate([
-            'email' => 'ji.munozf.1999@gmail.com',
+            'rut' => '20287177-1',
+            'email' => 'ignacio.munoz@tsv.cl',
         ], [
             'rut' => '20287177-1',
-            'name' => 'Juan Ignacio',
-            'email' => 'ji.munozf.1999@gmail.com',
+            'name' => 'Juan Ignacio Muñoz',
+            'email' => 'ignacio.munoz@tsv.cl',
             'password' => Hash::make('JuanIgnacio1'),
             'institution_id' => 1,
         ]);
@@ -148,6 +150,7 @@ class DatabaseSeeder extends Seeder
         $institucionUser1->assignRole($institucionRole);
 
         $institucionUser2 = User::firstOrCreate([
+            'rut' => '11232425-9',
             'email' => 'test2@test.cl',
         ], [
             'rut' => '11232425-9',
@@ -160,6 +163,7 @@ class DatabaseSeeder extends Seeder
         $institucionUser2->assignRole($institucionRole);
 
         $institucionUser3 = User::firstOrCreate([
+            'rut' => '17013603-9',
             'email' => 'test3@test.cl',
         ], [
             'rut' => '17013603-9',
@@ -172,6 +176,7 @@ class DatabaseSeeder extends Seeder
         $institucionUser3->assignRole($institucionRole);
 
         $institucionUser4 = User::firstOrCreate([
+            'rut' => '15132109-7',
             'email' => 'test4@test.cl',
         ], [
             'rut' => '15132109-7',

@@ -17,7 +17,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'checkPlanId' => \App\Http\Middleware\CheckPlanId::class,
-            'check.subscriptions' => \App\Http\Middleware\CheckSubscriptions::class,
             'check.postulation.limit' => \App\Http\Middleware\CheckPostulationLimit::class,
         ]);
     })

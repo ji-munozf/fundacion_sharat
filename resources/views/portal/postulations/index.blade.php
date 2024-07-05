@@ -111,24 +111,18 @@
                                         <a
                                             href="{{ route('portal.postulations.showReasons', $postulations[$vacancy->id]->id) }}">
                                             <button type="button"
-                                                class="w-32 px-5 py-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                                class="w-32 px-5 py-3 mb-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                                 <i class="fa-solid fa-eye mr-1"></i>
                                                 Visualizar razones
                                             </button>
                                         </a>
-                                        <form
-                                            action="{{ route('portal.postulations.destroy', $postulations[$vacancy->id]->id) }}"
-                                            method="POST" class="inline-block w-full"
-                                            id="deleteForm{{ $postulations[$vacancy->id]->id }}">
-                                            @csrf
-                                            @method('DELETE')
+                                        <a href="#">
                                             <button type="button"
-                                                onclick="confirmDelete({{ $postulations[$vacancy->id]->id }})"
                                                 class="w-32 px-5 py-3 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
-                                                <i class="fa-solid fa-ban mr-1"></i>
-                                                Cancelar
+                                                <i class="fa-solid fa-trash-can mr-1"></i>
+                                                Eliminar
                                             </button>
-                                        </form>
+                                        </a>
                                     @endif
                                 @else
                                     @if ($hasUnlimitedApplications || $currentMonthApplications < 2)

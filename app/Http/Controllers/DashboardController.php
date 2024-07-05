@@ -27,7 +27,7 @@ class DashboardController extends Controller
         Carbon::setLocale('es');
 
         // Formatear la fecha con el nombre del mes en español y convertir la primera letra del mes a minúscula
-        $planEndDateFormatted = $planEndDate ? $planEndDate->translatedFormat('d F Y \a \l\a\s H:i:s') : 'No disponible';
+        $planEndDateFormatted = $planEndDate ? $planEndDate->translatedFormat('d F Y \a \l\a\s H:i') : 'No disponible';
 
         // Convertir la primera letra del mes a minúscula
         $planEndDateFormatted = str_replace(
