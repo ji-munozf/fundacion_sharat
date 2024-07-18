@@ -28,7 +28,7 @@
             <div class="mb-3">
                 <x-label class="mb-2">Razones</x-label>
                 <textarea id="razones" name="razones" rows="4"
-                    class="block p-2.5 w-full text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">{{ old('reasons') }}</textarea>
+                class="block p-2.5 w-full text-gray-900 bg-gray-50 rounded-lg border focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">{{ old('reasons') }}</textarea>
             </div>
             <div class="flex justify-end">
                 <a href="{{ route('portal.vacancies.candidates', $postulation->vacancy_id) }}"

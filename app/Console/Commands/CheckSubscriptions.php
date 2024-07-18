@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CheckSubscriptions extends Command
 {
@@ -29,6 +30,7 @@ class CheckSubscriptions extends Command
         } else {
             // Manejar el error si la solicitud falla
             $this->error('No se pudo obtener la hora actual de la API.');
+            Log::error('No se pudo obtener la hora actual de la API.');
             return;
         }
 
@@ -48,8 +50,10 @@ class CheckSubscriptions extends Command
             DB::table('users')
                 ->where('id', $subscription->user_id)
                 ->update(['plan_id' => 1]);
+            Log::info('Plan del usuario actualizado a Básico para el usuario con ID: ' . $subscription->user_id);
         }
 
         $this->info('Se han comprobado y actualizado las suscripciones caducadas.');
+        Log::info('Se han comprobado y actualizado las suscripciones caducadas.');
     }
 }

@@ -45,11 +45,15 @@ class PremiumBenefitController extends Controller implements \Illuminate\Routing
                 'regex:/^(\w+)(,\s\w+){0,9}$/',
             ],
             'reasons' => 'required|string',
+            'use_register_email' => 'nullable|boolean',
         ], [
+            'reasons.required' => 'El campo razones es obligatorio.',
             'contact_number.regex' => 'El número de contacto debe comenzar con +569 seguido de ocho dígitos.',
             'contact_number.phone' => 'El número de contacto no es un número de celular chileno válido.',
             'fortalezas.regex' => 'Debe ingresar máximo diez fortalezas, separadas por comas.',
         ]);
+
+        $email = $request->input('use_register_email') ? auth()->user()->email : $request->input('email');
 
         // Manejo del archivo del currículum
         if ($request->hasFile('curriculum_vitae')) {
@@ -74,7 +78,7 @@ class PremiumBenefitController extends Controller implements \Illuminate\Routing
         PostulationUserData::create([
             'names' => $request->input('names'),
             'last_names' => $request->input('last_names'),
-            'email' => $request->input('email'),
+            'email' => $email,
             'contact_number' => $request->input('contact_number'),
             'curriculum_vitae' => $filePath ?? null, // Ruta del archivo guardado
             'strengths' => $request->input('fortalezas'),

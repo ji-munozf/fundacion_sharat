@@ -12,6 +12,7 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Storage;
+use \App\Rules\Recaptcha;
 
 class PostulationController extends Controller implements \Illuminate\Routing\Controllers\HasMiddleware
 
@@ -106,6 +107,8 @@ class PostulationController extends Controller implements \Illuminate\Routing\Co
                 'regex:/^(\w+)(,\s\w+){0,9}$/',
             ],
             'reasons' => 'required|string',
+            'autofill' => 'boolean',
+            'g-recaptcha-response' => ['required', new Recaptcha],
         ], [
             'curriculum_vitae.required_if' => 'El campo curriculum vitae es obligatorio.',
             'contact_number.regex' => 'El número de contacto debe comenzar con +569 seguido de ocho dígitos.',

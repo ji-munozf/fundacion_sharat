@@ -28,11 +28,11 @@
     <!-- Font Awesome -->
     <script src="https://kit.fontawesome.com/6c0cf5d508.js" crossorigin="anonymous"></script>
 
-    <!-- Sweet alert 2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Sweet alert 2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.1"></script>
 
     <!-- Styles -->
     @livewireStyles

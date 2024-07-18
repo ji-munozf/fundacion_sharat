@@ -13,6 +13,12 @@
         'name' => 'Postular',
     ],
 ]">
+
+    <head>
+        <!-- reCAPTCHA Google -->
+        <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+    </head>
+
     <div class="bg-white shadow rounded-lg p-6 dark:bg-gray-800">
         <div class="mb-4 text-center text-lg dark:text-white">
             Postular a vacante: {{ $vacancy->name }}
@@ -30,10 +36,14 @@
 
             @if (auth()->user()->plan_id == 2)
                 <div class="mb-4">
-                    <x-label class="flex items-center">
-                        <x-checkbox id="autofill-checkbox" name="autofill" value="1" class="mr-1" />
-                        Autocompletar datos
-                    </x-label>
+                    <div class="flex items-center">
+                        <input
+                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-900 dark:border-gray-600"
+                            type="checkbox" id="autofill-checkbox" name="autofill" value="1"
+                            {{ old('autofill', 0) == 1 ? 'checked' : '' }} />
+                        <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Autocompletar
+                            datos</span>
+                    </div>
                 </div>
             @endif
 
@@ -76,7 +86,9 @@
                     class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400"
                     id="file_input" name="curriculum_vitae" type="file" accept=".pdf,.doc,.docx">
                 <x-input type="text" id="file_name_display" class="w-full bg-gray-50 mb-1" readonly
-                    style="display:none;" />
+                    style="display:none;" value="{{ old('file_name_display') }}" />
+                <input type="hidden" name="file_name_display" id="file_name_hidden"
+                    value="{{ old('file_name_display') }}">
                 <span class="text-sm text-gray-600 dark:text-gray-400">Solo se aceptan documentos PDF o Word.</span>
             </div>
 
@@ -110,6 +122,7 @@
                 const autofillCheckbox = document.getElementById('autofill-checkbox');
                 const fileInput = document.getElementById('file_input');
                 const fileNameDisplay = document.getElementById('file_name_display');
+                const fileNameHidden = document.getElementById('file_name_hidden');
                 const postulationDataAvailable = document.getElementById('postulation_data_available').value === 'true';
 
                 const inputFields = [
@@ -141,6 +154,10 @@
                     }
                 }
 
+                if (autofillCheckbox.checked) {
+                    setDisabledState(true);
+                }
+
                 autofillCheckbox.addEventListener('change', async function() {
                     if (autofillCheckbox.checked) {
                         if (!postulationDataAvailable) {
@@ -159,7 +176,7 @@
                                         "{{ route('portal.premium_benefits.postulation_data') }}";
                                 } else {
                                     autofillCheckbox.checked =
-                                    false; // Desmarca el checkbox si se cancela
+                                        false; // Desmarca el checkbox si se cancela
                                 }
                             });
                             return;
@@ -168,7 +185,7 @@
                         try {
                             const response = await fetch(
                                 '{{ route('portal.postulations.userData', ['plan_id' => auth()->user()->plan_id]) }}'
-                                );
+                            );
                             const userData = await response.json();
 
                             document.getElementById('names').value = userData.names;
@@ -181,8 +198,10 @@
                             if (userData.curriculum_vitae) {
                                 const baseFileName = userData.curriculum_vitae.split('/').pop();
                                 fileNameDisplay.value = baseFileName;
+                                fileNameHidden.value = baseFileName;
                             } else {
                                 fileNameDisplay.value = '';
+                                fileNameHidden.value = '';
                             }
 
                             setDisabledState(true);
@@ -204,6 +223,7 @@
                 fileInput.addEventListener('change', function() {
                     const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : '';
                     fileNameDisplay.value = fileName;
+                    fileNameHidden.value = fileName;
                 });
 
                 document.getElementById('postulation-form').addEventListener('submit', function(event) {
@@ -213,6 +233,25 @@
                         if (field.getAttribute('data-disabled') === 'true') {
                             field.removeAttribute('disabled');
                         }
+                    });
+                });
+            });
+
+            document.addEventListener('submit', function(e) {
+                e.preventDefault();
+                grecaptcha.ready(function() {
+                    grecaptcha.execute('{{ config('services.recaptcha.site_key') }}', {
+                        action: 'submit'
+                    }).then(function(token) {
+                        let form = e.target;
+
+                        let input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'g-recaptcha-response';
+                        input.value = token;
+
+                        form.appendChild(input);
+                        form.submit();
                     });
                 });
             });

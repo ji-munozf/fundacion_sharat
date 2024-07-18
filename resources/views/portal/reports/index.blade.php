@@ -15,7 +15,7 @@
     </div>
 
     <div class="flex justify-center items-center">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-4">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-4">
             <div
                 class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col items-center text-center justify-center h-full">
                 <div class="text-3xl">

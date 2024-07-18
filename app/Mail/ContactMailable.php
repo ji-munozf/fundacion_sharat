@@ -5,6 +5,7 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -29,8 +30,8 @@ class ContactMailable extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: 'soporte@fundacionsharat.cl',
-            subject: 'Mensaje de contacto institución',
+            from: new Address('soporte@fundacionsharat.cl', 'Soporte Fundación Sharat'),
+            subject: 'Mensaje de contacto institución: ' . $this->data['institution'],
         );
     }
 
@@ -40,7 +41,7 @@ class ContactMailable extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'mails.contact',
+            markdown: 'emails.contact',
         );
     }
 

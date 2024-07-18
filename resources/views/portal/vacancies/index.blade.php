@@ -112,7 +112,7 @@
                                         Eliminar
                                     </button>
                                 </form>
-                                @if ($vacancy->active && auth()->user()->can('Visualizar postulantes'))
+                                @if (auth()->user()->can('Visualizar postulantes'))
                                     @php
                                         $user = auth()->user();
                                         $isSuperAdmin = $user->hasRole('Super admin');

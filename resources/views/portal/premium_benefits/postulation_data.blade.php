@@ -18,12 +18,12 @@
                 <div class="grid items-end gap-6 md:grid-cols-2">
                     <div class="relative">
                         <x-label class="mb-2">Nombres</x-label>
-                        <x-input name="names" type="text" class="w-full bg-gray-50 cursor-default"
+                        <x-input name="names" type="text" class="w-full bg-gray-50 cursor-not-allowed"
                             value="{{ $postulationData->names }}" readonly />
                     </div>
                     <div class="relative">
                         <x-label class="mb-2">Apellidos</x-label>
-                        <x-input name="last_names" type="text" class="w-full bg-gray-50 cursor-default"
+                        <x-input name="last_names" type="text" class="w-full bg-gray-50 cursor-not-allowed"
                             value="{{ $postulationData->last_names }}" readonly />
                     </div>
                 </div>
@@ -31,32 +31,32 @@
 
             <div class="mb-4">
                 <x-label class="mb-2">Correo electrónico</x-label>
-                <x-input name="email" type="email" class="w-full bg-gray-50 cursor-default"
+                <x-input name="email" type="email" class="w-full bg-gray-50 cursor-not-allowed"
                     value="{{ $postulationData->email }}" readonly />
             </div>
 
             <div class="mb-4">
                 <x-label class="mb-2">Número de contacto</x-label>
-                <x-input name="contact_number" type="text" class="w-full bg-gray-50 cursor-default"
+                <x-input name="contact_number" type="text" class="w-full bg-gray-50 cursor-not-allowed"
                     value="{{ $postulationData->contact_number }}" readonly />
             </div>
 
             <div class="mb-4">
                 <x-label class="mb-2">Currículum Vitae</x-label>
-                <x-input name="curriculum_vitae" type="text" class="w-full bg-gray-50 cursor-default"
+                <x-input name="curriculum_vitae" type="text" class="w-full bg-gray-50 cursor-not-allowed"
                     value="{{ basename($postulationData->curriculum_vitae) }}" readonly />
             </div>
 
             <div class="mb-4">
                 <x-label class="mb-2">Fortalezas</x-label>
-                <x-input name="fortalezas" type="text" class="w-full bg-gray-50 cursor-default"
+                <x-input name="fortalezas" type="text" class="w-full bg-gray-50 cursor-not-allowed"
                     value="{{ $postulationData->strengths }}" readonly />
             </div>
 
             <div class="mb-4">
                 <x-label class="mb-2">¿Por qué quieres aplicar al puesto?</x-label>
                 <textarea id="message" name="reasons" rows="4"
-                    class="block p-2.5 w-full text-gray-900 bg-gray-50 cursor-default rounded-lg border border-gray-700 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    class="block p-2.5 w-full text-gray-900 bg-gray-50 cursor-not-allowed rounded-lg border border-gray-700 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     readonly>{{ $postulationData->reasons }}</textarea>
             </div>
 
@@ -93,7 +93,17 @@
 
                 <div class="mb-4">
                     <x-label class="mb-2">Correo electrónico</x-label>
-                    <x-input name="email" type="email" class="w-full bg-gray-50" value="{{ old('email') }}" />
+                    <x-input id="email-input" name="email" type="email" class="w-full bg-gray-50 mb-2"
+                        value="{{ old('email') }}" />
+
+                    <div class="flex items-center">
+                        <input
+                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-900 dark:border-gray-600"
+                            type="checkbox" id="use-register-email" name="use_register_email" value="1"
+                            {{ old('use_register_email') ? 'checked' : '' }} />
+                        <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Usar el mismo correo de
+                            registro</span>
+                    </div>
                 </div>
 
                 <div class="mb-4">
@@ -111,7 +121,8 @@
                     <input
                         class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400"
                         id="file_input" name="curriculum_vitae" type="file" accept=".pdf,.doc,.docx">
-                    <span class="text-xs text-gray-600 dark:text-gray-400">Solo se aceptan documentos PDF o Word.</span>
+                    <span class="text-xs text-gray-600 dark:text-gray-400">Solo se aceptan documentos PDF o
+                        Word.</span>
                 </div>
 
                 <div class="mb-4">
@@ -157,6 +168,25 @@
                     }
                 })
             }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const emailInput = document.getElementById('email-input');
+                const useRegisterEmailCheckbox = document.getElementById('use-register-email');
+                const registeredEmail = "{{ auth()->user()->email }}";
+
+                function updateEmailInput() {
+                    if (useRegisterEmailCheckbox.checked) {
+                        emailInput.value = registeredEmail;
+                        emailInput.setAttribute('readonly', true);
+                    } else {
+                        emailInput.removeAttribute('readonly');
+                        emailInput.value = "{{ old('email') }}";
+                    }
+                }
+
+                useRegisterEmailCheckbox.addEventListener('change', updateEmailInput);
+                updateEmailInput(); // Initialize on page load
+            });
         </script>
     @endpush
 </x-portal-layout>

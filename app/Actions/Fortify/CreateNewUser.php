@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 use Laravel\Jetstream\Jetstream;
 use Malahierba\ChileRut\ChileRut;
+use \App\Rules\Recaptcha;
 
 class CreateNewUser implements CreatesNewUsers
 {
@@ -49,6 +50,7 @@ class CreateNewUser implements CreatesNewUsers
             }],
             'password' => array_merge($this->passwordRules(), ['min:12']),
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
+            'g-recaptcha-response' => ['required', new Recaptcha],
         ])->validate();
 
         // Obtener el plan gratuito

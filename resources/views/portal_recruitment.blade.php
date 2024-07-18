@@ -1,5 +1,10 @@
 @section('title', 'Fundación Sharat - Portal Recruitment')
 
+<head>
+    <!-- reCAPTCHA Google -->
+    <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+</head>
+
 <x-app-layout>
     <div class="text-2xl text-center text-gray-900 dark:text-white mt-10 mb-4">
         Portal sharat Recruitment
@@ -64,10 +69,19 @@
 
                         <div>
                             <x-label class="mb-2">
+                                Nombre de la institución
+                            </x-label>
+
+                            <x-input name="institution" type="text" class="w-full"
+                                placeholder="Ingrese el nombre de la institución" value="{{ old('institution') }}" />
+                        </div>
+
+                        <div>
+                            <x-label class="mb-2">
                                 Mensaje
                             </x-label>
 
-                            <textarea id="mensaje" name="mensaje" rows="4"
+                            <textarea id="message" name="message" rows="4"
                                 class="block p-2.5 w-full text-gray-900 bg-gray-50 rounded-lg border focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">{{ old('mensaje') }}</textarea>
                         </div>
 
@@ -83,4 +97,27 @@
             </div>
         </section>
     </div>
+
+    @push('js')
+        <script>
+            document.addEventListener('submit', function(e) {
+                e.preventDefault();
+                grecaptcha.ready(function() {
+                    grecaptcha.execute('{{ config('services.recaptcha.site_key') }}', {
+                        action: 'submit'
+                    }).then(function(token) {
+                        let form = e.target;
+
+                        let input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'g-recaptcha-response';
+                        input.value = token;
+
+                        form.appendChild(input);
+                        form.submit();
+                    });
+                });
+            });
+        </script>
+    @endpush
 </x-app-layout>

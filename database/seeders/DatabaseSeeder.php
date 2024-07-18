@@ -116,7 +116,7 @@ class DatabaseSeeder extends Seeder
             'Crear usuarios', 'Actualizar usuarios', 'Eliminar usuarios', 'Cambiar contraseña', 'Hacer premium',
             'Visualizar roles', 'Crear roles', 'Actualizar roles', 'Eliminar roles', 'Añadir permisos',
             'Visualizar permisos', 'Crear permisos', 'Actualizar permisos', 'Eliminar permisos',
-            'Visualizar instituciones', 'Crear instituciones', 'Actualizar instituciones',
+            'Visualizar instituciones', 'Crear instituciones', 'Actualizar instituciones', 'Eliminar instituciones',
             'Visualizar vacantes', 'Crear vacantes', 'Actualizar vacantes', 'Eliminar vacantes',
             'Visualizar reportes', 'Visualizar historial suscripciones', 'Visualizar historial vacantes', 'Visualizar historial postulaciones', 'Visualizar historial datos de postulación',
             'Exportar vacantes a excel', 'Exportar postulaciones a excel', 'Exportar suscripciones a excel', 'Exportar datos de postulación a excel',
@@ -126,7 +126,7 @@ class DatabaseSeeder extends Seeder
 
         // Asignar permisos al rol de institución
         $institucionRole->givePermissionTo([
-            'Acceso al dashboard', 'Visualizar usuarios',
+            'Acceso al dashboard',
             'Visualizar vacantes', 'Crear vacantes', 'Actualizar vacantes', 'Eliminar vacantes',
             'Visualizar postulantes', 'Descargar CV', 'Visualizar botón aceptar', 'Visualizar botón rechazar',
             'Actualizar razones', 'Cancelar elección',
